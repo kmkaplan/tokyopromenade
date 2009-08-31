@@ -1,0 +1,156 @@
+#: 1978
+#! Tokyo Cabinet
+#c 1978-02-11T18:05:30+09:00
+#m 2009-07-28T11:48:12+09:00
+#o mikio
+#t draft,test
+
+* Tokyo Cabinet: a modern implementation of DBM
+
+#---- PRODUCT LOGO
+@ http://tokyocabinet.sourceforge.net/logo.png
+
+===
+
+** Overview
+
+[[Tokyo Cabinet]] is a library of routines for managing a database.  The database is a simple data file containing records, each is a pair of a key and a value.  Every key and value is serial bytes with variable length.  Both binary data and character string can be used as a key and a value.  There is neither concept of data tables nor data types.  Records are organized in hash table, B+ tree, or fixed-length array.
+
+Tokyo Cabinet is developed as the successor of GDBM and QDBM on the following purposes.  They are achieved and Tokyo Cabinet replaces conventional DBM products.
+
+- [*improves space efficiency*] : smaller size of database file.
+- [*improves time efficiency*] : faster processing speed.
+- [*improves parallelism*] : higher performance in multi-thread environment.
+- [*improves usability*] : simplified API.
+- [*improves robustness*] : database file is not corrupted even under catastrophic situation.
+- [*supports 64-bit architecture*] : enormous memory space and database file are available.
+
+Tokyo Cabinet is written in the C language, and provided as API of C, Perl, Ruby, Java, and Lua.  Tokyo Cabinet is available on platforms which have API conforming to C99 and POSIX.  Tokyo Cabinet is a free software licensed under the GNU Lesser General Public License.
+
+===
+
+** Documents
+
+The following are documents of Tokyo Cabinet.  They are contained also in the source package.
+
+- [[Fundamental Specifications|http://tokyocabinet.sourceforge.net/spex-en.html]]
+
+- [[Specifications of Perl API|http://tokyocabinet.sourceforge.net/perldoc/]]
+- [[Specifications of Ruby API|http://tokyocabinet.sourceforge.net/rubydoc/]]
+- [[Specifications of Java API|http://tokyocabinet.sourceforge.net/javadoc/]]
+- [[Specifications of Lua API|http://tokyocabinet.sourceforge.net/luadoc/]]
+
+- [[Specifications of Remote Service (Tokyo Tyrant)|http://tokyocabinet.sourceforge.net/tyrantdoc/]]
+-- [[Specifications of Perl Client|http://tokyocabinet.sourceforge.net/tyrantperldoc/]]
+-- [[Specifications of Ruby Client|http://tokyocabinet.sourceforge.net/tyrantrubydoc/]]
+- [[Specifications of Inverted Index (Tokyo Dystopia)|http://tokyocabinet.sourceforge.net/dystopiadoc/]]
+
+- [[Presentation|http://tokyocabinet.sourceforge.net/tokyoproducts.pdf]]
+- [[Report of a Benchmark Test|http://tokyocabinet.sourceforge.net/benchmark.pdf]]
+
+===
+
+** Sample
+
+The following a sample program.
+
+{{{
+#include <tcutil.h>
+#include <tchdb.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+int main(int argc, char **argv){
+  TCHDB *hdb;
+  int ecode;
+  char *key, *value;
+
+  /* create the object */
+  hdb = tchdbnew();
+
+  /* open the database */
+  if(!tchdbopen(hdb, "casket.tch", HDBOWRITER | HDBOCREAT)){
+    ecode = tchdbecode(hdb);
+    fprintf(stderr, "open error: %s\n", tchdberrmsg(ecode));
+  }
+
+  /* store records */
+  if(!tchdbput2(hdb, "foo", "hop") ||
+     !tchdbput2(hdb, "bar", "step") ||
+     !tchdbput2(hdb, "baz", "jump")){
+    ecode = tchdbecode(hdb);
+    fprintf(stderr, "put error: %s\n", tchdberrmsg(ecode));
+  }
+
+  /* retrieve records */
+  value = tchdbget2(hdb, "foo");
+  if(value){
+    printf("%s\n", value);
+    free(value);
+  } else {
+    ecode = tchdbecode(hdb);
+    fprintf(stderr, "get error: %s\n", tchdberrmsg(ecode));
+  }
+
+  /* traverse records */
+  tchdbiterinit(hdb);
+  while((key = tchdbiternext2(hdb)) != NULL){
+    value = tchdbget2(hdb, key);
+    if(value){
+      printf("%s:%s\n", key, value);
+      free(value);
+    }
+    free(key);
+  }
+
+  /* close the database */
+  if(!tchdbclose(hdb)){
+    ecode = tchdbecode(hdb);
+    fprintf(stderr, "close error: %s\n", tchdberrmsg(ecode));
+  }
+
+  /* delete the object */
+  tchdbdel(hdb);
+
+  return 0;
+}
+}}}
+
+===
+
+** Benchmark
+
+The following is the result of a benchmark test to write/read 1 million records.
+
+|[*abbr*]|[*name*]|[*write*]|[*read*]|[*size*]
+|TC|Tokyo Cabinet 1.3.5|0.402|0.334|42,583,208
+|QDBM|Quick Database Manager 1.8.77|2.779|0.962|56,582,932
+|NDBM|New Database Manager 5.1|5.118|3.551|834,003,968
+|SDBM|Substitute Database Manager 1.0.2|6.277|0.000|621,281,280
+|GDBM|GNU Database Manager 1.8.3|18.692|3.133|88,137,728
+|TDB|Trivial Database 1.0.6|7.219|0.789|52,523,008
+|CDB|Tiny Constant Database 0.75|0.357|0.371|40,002,048
+|BDB|Berkeley DB 4.6.21|9.108|3.109|41,938,944
+
+===
+
+** License
+
+Tokyo Cabinet is released under the GNU Lesser General Public License version 2.1 or later.
+
+> Tokyo Cabinet is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License or any later version.  Tokyo Cabinet is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+> You should have received a copy of the GNU Lesser General Public License along with Tokyo Cabinet; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+===
+
+** Information
+
+Tokyo Cabinet was written and is maintained by [[Mikio Hirabayashi|http://qdbm.sourceforge.net/mikio/]].  You can contact the author by e-mail to `[[mailto:mikio@users.sourceforge.net]]'.
+
+The project page on SourceForge.net is `[[http://sourceforge.net/projects/tokyocabinet/]]'.  Update of this project is announced on Freshmeat.net at `[[http://freshmeat.net/projects/tokyocabinet/]]'.
+
+#% 2009-08-01T02:30:00+09:00|mikio|Tokyo Tyrant is a network interface of Tokyo Cabinet.
+#% 2009-08-01T02:31:00+09:00|mikio|Tokyo Dystopia is a full-text search system.
+#% 2009-08-01T02:32:00+09:00|admin|Tokyo Promenade is a content management system.
+#% 2009-08-01T02:33:00+09:00|mother|Something [*old*], something ["new"], something [+borrowed+], something [-blue-], and a [=sixpence=] in her shoe.

@@ -1,0 +1,16 @@
+#! Help of Tokyo Promenade
+#c 2009-08-02T15:28:01+09:00
+#o admin
+#t *,help
+
+Welcome to Tokyo Promenade, a lightweight Wiki system.  This article describes how to use Tokyo Promenade.
+
+* What is Wiki?
+
+Tokyo Promenade is a kind of Wiki systems.  Wiki is a mechanism for every user to write/edit Web contents easily.  Though usual BBS systems also implement functions to write new articles, to show articles, and to add comments, the purpose of Wiki is different.  While the main purpose of BBS is to provide new information by listing newcome articles in the timeline, the main purpose of Wiki is to organize information by making named documents related with hyper links.
+
+{{{{
+{{{
+hoge
+}}}
+}}}}

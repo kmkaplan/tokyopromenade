@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Language" content="en" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta name="author" content="Mikio Hirabayashi" />
+<meta name="keywords" content="Tokyo Promenade, tokyopromenade, Tokyo Cabinet, CMS, Wiki" />
+<meta name="description" content="specifications of Tokyo Promenade" />
+<link rel="contents" href="./" />
+<link rev="made" href="mailto:mikio@users.sourceforge.net" />
+<title>Tokyo Promenade: a content management system</title>
+<style type="text/css">html {
+  margin: 0em 0em;
+  padding: 0em 0em;
+  background: #eeeeee none;
+}
+body {
+  margin: 1em 2em;
+  padding: 0em 0em;
+  background: #eeeeee none;
+  color: #111111;
+}
+hr {
+  margin: 2.5em 0em 1.5em 0em;
+  height: 1px;
+  border: none;
+  background: #999999 none;
+  color: #999999;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-weight: bold;
+}
+h1 {
+  margin: 1.0em 0em 1.3em 0em;
+  padding: 0em 0em;
+  font-size: 180%;
+  color: #000000;
+}
+h2 {
+  margin: 1.0em 0em 1.0em 0.2em;
+  padding: 0.5em 0.5em;
+  width: 60%;
+  border-left: solid 0.6em #445555;
+  border-bottom: solid 1px #bbbbbb;
+  font-size: 150%;
+  color: #000011;
+}
+h3 {
+  margin: 0.8em 0em 0.5em 0.2em;
+  padding: 0em 0em;
+  font-size: 120%;
+  color: #001111;
+}
+p {
+  margin: 0.8em 0em;
+  line-height: 140%;
+  text-indent: 0.8em;
+}
+div,pre,table {
+  margin: 0.8em 1.5em;
+}
+div.note,div.navi {
+  text-align: right;
+  margin: 0em 0.5em;
+  color: #333333;
+}
+span.void {
+  color: #888888;
+}
+div.logo {
+  text-align: center;
+  margin: 3em 0em;
+}
+div.logo img {
+  border: inset 2px #ccccdd;
+}
+div.illust {
+  margin: 1em 0em;
+  text-align: center;
+}
+div.illust img {
+  border: solid 1px #ccccdd;
+}
+pre {
+  padding: 0.2em;
+  background-color: #ddddee;
+  border: 1px solid #bbbbcc;
+  font-size: 95%;
+}
+li,dt,dd {
+  line-height: 130%;
+}
+dt {
+  margin-left: 1.2em;
+}
+dd {
+  margin-left: 2.5em;
+  text-indent: -0.3em;
+}
+dl.api {
+  margin-top: -0.2em;
+}
+dl.api dd {
+  margin-left: 3.0em;
+  font-size: 95%;
+  color: #333333;
+}
+ul {
+  margin: 0.5em 2.0em;
+  padding: 0em;
+}
+ul.options {
+  list-style-type: none;
+  margin: 0.5em 1.5em;
+  font-size: 95%;
+  color: #333333;
+}
+table {
+  border-collapse: collapse;
+}
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.1em 0.5em;
+  border: solid 1px #aaaabb;
+  font-size: 95%;
+}
+td.label {
+  border: none;
+  font-size: 80%;
+  color: #333333;
+}
+td.number {
+  text-align: right;
+}
+a {
+  color: #0022aa;
+  text-decoration: none;
+}
+a:hover,a:focus {
+  color: #0033ee;
+  text-decoration: underline;
+}
+code,kbd {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 100%;
+  color: #001111;
+}
+var {
+  padding: 0em 0.15em 0em 0em;
+  font-style: italic;
+  color: #001122;
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="headline">Tokyo Promenade: a content management system</h1>
+
+<div class="note">Copyright (C) 2008-2009 Mikio Hirabayashi</div>
+<div class="note">Last Update: Wed, 12 Aug 2009 17:24:22 +0900</div>
+
+<hr />
+
+<h2 id="contents">Table of Contents</h2>
+
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#license">License</a></li>
+</ol>
+
+<hr />
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Now, writing...</p>
+
+<hr />
+
+<h2 id="installation">Installation</h2>
+
+<p>Install the latest version of Tokyo Cabinet beforehand and get the package of Tokyo Promenade.</p>
+
+<p>When an archive file of Tokyo Promenade is extracted, change the current working directory to the generated directory and perform installation.</p>
+
+<p>Run the configuration script.</p>
+
+<pre>./configure
+</pre>
+
+<p>Build programs.</p>
+
+<pre>make
+</pre>
+
+<p>Perform self-diagnostic test.</p>
+
+<pre>make check
+</pre>
+
+<p>Install programs.  This operation must be carried out by the root user.</p>
+
+<pre>make install
+</pre>
+
+<p>When a series of work finishes, the following files will be installed.</p>
+
+<pre>/usr/local/bin/prommgr
+/usr/local/libexec/promenade.cgi
+/usr/local/share/tokyopromenade/...
+/usr/local/man/man1/...
+/usr/local/man/man3/...
+</pre>
+
+<hr />
+
+<h2 id="deployment">Deployment</h2>
+
+<p>Install an arbitrary web server which supports the CGI mechanism.  Then, create a directory where CGI scripts can be execute.  We call it the base directory, which contains some files of Tokyo Promenade.</p>
+
+<pre>mkdir -p /path/to/the/base/directory
+cd /path/to/the/base/directory
+</pre>
+
+<p>Copy the CGI script and some configuration files into the base directory.</p>
+
+<pre>cp /usr/local/libexec/promenade.cgi .
+cp /usr/local/share/tokyopromenade/promenade.* .
+cp /usr/local/share/tokyopromenade/passwd.txt .
+</pre>
+
+<p>Create the database file where articles are stored.</p>
+
+<pre>prommgr create promenade.tct
+</pre>
+
+<p>Create a directory where uploaded files are stored.</p>
+
+<pre>mkdir upload
+</pre>
+
+<p>The CGI script should have permissions to read/write the database file and the upload directory.  To achieve the purpose, one of the following is suggested.</p>
+
+<ul>
+<li>Change the owner: <code>sudo chown www:nobody promenade.tct upload</code></li>
+<li>Forget the security: <code>chmod 666 promenade.tct ; chmod 777 upload</code></li>
+<li>Run the web server by the same user of the owner of the base directory.</li>
+<li>Change the user ID of the CGI script by using a feature of the web server like suExec.</li>
+</ul>
+
+<p>When all steps above are finished, access the CGI script with a Web browser.</p>
+
+<hr />
+
+<h2 id="license">License</h2>
+
+<p>Tokyo Promenade is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.</p>
+
+<p>Tokyo Promenade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License along with this program.  If not, see `<code>http://www.gnu.org/licenses/</code>'.</p>
+
+<p>Tokyo Promenade was written by Mikio Hirabayashi.  You can contact the author by e-mail to `<code>mikio@users.sourceforge.net</code>'.</p>
+
+<hr />
+
+</body>
+
+</html>
+
+<!-- END OF FILE -->

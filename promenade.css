@@ -1,0 +1,358 @@
+/* common style */
+html {
+  margin: 0px;
+  padding: 0px;
+  background: #ffffff none;
+  color: #111111;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+}
+a {
+  text-decoration: none;
+  color: #0022bb;
+}
+a:hover {
+  text-decoration: underline;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  color: #000000;
+}
+hr {
+  clear: both;
+  height: 1px;
+  margin: 10px 0px;
+  padding: 0px 0px;
+  border: none;
+  background: #999999 none;
+  color: #999999;
+}
+form {
+  margin: 0px;
+  padding: 0px;
+}
+h1,h2,h3,h4,h5,h6,p,ul,ol,dl {
+  line-height: 150%;
+}
+div.view_main {
+  display: inline-block;
+  width: 700px;
+  text-align: left;
+}
+h1.title {
+  margin: 0ex;
+}
+p.info {
+  margin: 1ex 1ex;
+  color: #333333;
+}
+
+
+/* navigation bar */
+div#topnavi {
+  margin: 2px 0px;
+  padding: 4px 0px;
+  text-align: right;
+  font-size: 90%;
+}
+div#topnavi a {
+  margin: 2px;
+}
+div#botnavi {
+  margin: 0px 0px;
+  padding: 0px 0px;
+  text-align: right;
+  font-size: 90%;
+}
+div#botnavi a {
+  margin: 2px;
+}
+
+
+/* article view */
+div.article {
+  min-height: 300px;
+  padding: 8px 2px 20px 2px;
+}
+div.article .ah0 {
+  margin-bottom: 0.8ex;
+  padding: 0.3ex 0.5ex;
+  border-left: solid 0.8ex #bbbbbb;
+  border-bottom: solid 1px #cccccc;
+  font-size: 150%;
+}
+div.article div.attr {
+  margin: 0ex 1ex;
+  text-align: right;
+  color: #555555;
+}
+div.article div.attr span {
+  color: #111111;
+}
+div.article .topic {
+  margin: 1.5ex 0ex 1.0ex 0ex;
+}
+div.article .ah1 {
+  font-size: 120%;
+}
+div.article .ah2 {
+  font-size: 110%;
+  margin-left: 0.2ex;
+}
+div.article .ah3 {
+  font-size: 105%;
+  margin-left: 0.4ex;
+}
+div.article .ah4 {
+  font-size: 95%;
+  margin-left: 0.5ex;
+}
+div.article .ah5 {
+  font-size: 90%;
+  margin-left: 0.5ex;
+}
+div.article .ah6 {
+  font-size: 85%;
+  margin-left: 0.5ex;
+}
+div.article p {
+  margin: 1.1ex 0.5ex;
+  text-indent: 1.5ex;
+}
+div.article ul,div.article ol {
+  margin: 1.0ex 0.5ex;
+  line-height: 130%;
+}
+div.article ul ul,div.article ul ol,div.article ol ul,div.article ol ol {
+  margin: 0ex 0.5ex;
+}
+div.article pre {
+  clear: both;
+  margin: 1.1ex 2.5ex;
+  padding: 0.3ex 0.5ex;
+  white-space: pre-wrap;
+  overflow: hidden;
+  background: #f8f8f8;
+  border: solid 1px #ccccdd;
+  font-size: 90%;
+}
+div.article table {
+  clear: both;
+  margin: 1.1ex 3ex;
+  border-collapse: collapse;
+}
+div.article table th,div.article table td {
+  border: solid 1pt #888888;
+  padding: 1px 5px;
+  font-size: 95%;
+}
+div.article blockquote {
+  clear: both;
+  margin: 0ex 2ex;
+  padding: 0ex;
+  line-height: 130%;
+  border: 1px dashed #aaaabb;
+  font-size: 95%;
+}
+div.article blockquote p {
+  margin: 0.4ex 0.8ex;
+}
+div.article div.image {
+  clear: both;
+}
+div.article div.image_normal {
+  max-width: 95%;
+  margin: 1.1ex 3ex;
+}
+div.article div.image_left {
+  max-width: 55%;
+  float: left;
+  margin: 1.2ex 1.8ex 1ex 0.5ex;
+}
+div.article div.image_right {
+  max-width: 55%;
+  float: right;
+  margin: 1.2ex 0.5ex 1ex 1.5ex;
+}
+div.article div.image img {
+  max-width: 100%;
+  margin: 0ex;
+  padding: 0ex;
+  border: none;
+}
+div.article div.rule {
+  clear: both;
+  height: 1px;
+  margin: 3ex 0.2ex 2ex 0.2ex;
+  padding: 0px 0px;
+  border: none;
+  background: #cccccc none;
+}
+div.article div.rule span {
+  display: none;
+}
+div.article div.comnum {
+  clear: both;
+  margin: 3ex 3ex 1ex 3ex;
+  text-align: right;
+  color: #888888;
+  font-size: 90%;
+}
+div.article div.comnum a {
+  color: #888888;
+}
+div.article div.comments {
+  clear: both;
+  margin: 6ex 1.2ex 1ex 1.2ex;
+  padding: 0.3ex 1.5ex;
+  border: 1px dotted #aaaabb;
+  color: #222222;
+  font-size: 90%;
+}
+div.comments div.meta {
+  text-align: right;
+  color: #666666;
+}
+div.comment span.date {
+  color: #666666;
+  font-size: 90%;
+}
+div.commentformline {
+  margin: 1ex 0ex;
+}
+
+
+/* front view */
+div.view_front div.article h1.ah0 {
+  margin: 0ex 1ex;
+  padding: 0ex;
+  float: right;
+  border: none;
+  font-size: 100%;
+  font-style: italic;
+}
+div.view_front div.article h1.ah0 a {
+  color: #888888;
+}
+
+
+/* search view */
+form.searchform {
+  margin: 2ex 1ex 3ex 1ex;
+  padding: 1ex 1ex;
+  border: 1px dashed #aaaabb;
+  color: #333333;
+  font-size: 90%;
+}
+dl#searchresult {
+  margin: 0ex 1ex;
+}
+dl#searchresult dt {
+  margin-top: 1.5ex;
+}
+dl#searchresult dd {
+  font-size: 90%;
+}
+
+
+/* edit view */
+form.editform {
+  margin: 1ex 1ex;
+}
+
+
+/* users view */
+form.usernewform {
+  margin: 1ex 1ex;
+}
+form.usernewform dl {
+  padding: 1ex;
+  border: dashed 1pt #888888;
+}
+form.usernewform dl span.note {
+  color: #555555;
+  font-size: 90%;
+}
+table#userlist {
+  margin: 1ex 1ex;
+  border-collapse: collapse;
+}
+table#userlist th,table#userlist td {
+  border: solid 1pt #888888;
+  padding: 1px 5px;
+  font-size: 95%;
+}
+table#userlist td.misc {
+  font-size: 85%;
+}
+
+
+/* files view */
+form.filenewform {
+  margin: 1ex 1ex;
+}
+form.filenewform dl {
+  padding: 1ex;
+  border: dashed 1pt #888888;
+}
+form.filenewform dl span.note {
+  color: #555555;
+  font-size: 90%;
+}
+form.filesearchform {
+  margin: 2ex 1ex;
+  padding: 1ex 1ex;
+  border: 1px dashed #aaaabb;
+  color: #333333;
+  font-size: 90%;
+}
+table#filelist {
+  margin: 1ex 1ex;
+  border-collapse: collapse;
+}
+table#filelist th,table#filelist td {
+  border: solid 1pt #888888;
+  padding: 1px 5px;
+  font-size: 90%;
+}
+table#filelist td.name a.filename {
+  display: inline-block;
+  max-width: 32ex;
+}
+table#filelist td.name a.label {
+  font-size: 95%;
+}
+table#filelist td.name div.thumnail {
+  max-width: 100px;
+  max-height: 100px;
+  overflow: hidden;
+  margin: 3px 0px 3px 60px;
+}
+table#filelist td.name div.thumnail img {
+  max-width: 100%;
+  max-height: 100%;
+}
+table#filelist td.misc {
+  font-size: 80%;
+}
+table#filelist td.misc input.fileinput {
+  font-size: 90%;
+}
+table#filelist td.misc input.submit {
+  font-size: 90%;
+}
+
+
+/* footer */
+div#footer {
+  text-align: right;
+  margin: 10px 0px;
+  padding: 4px 3px;
+  color: #333333;
+  font-size: 80%;
+}
+div#footer a {
+  color: #333333;
+}

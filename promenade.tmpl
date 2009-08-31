@@ -1,0 +1,617 @@
+[%--------------------------------
+  - configuration
+  --------------------------------\%]
+[% CONF database "promenade.tct" \%]
+[% CONF password "passwd.txt" \%]
+[% CONF upload "upload" \%]
+[% CONF recvmax "64m" \%]
+[% CONF title "Tokyo Promenade" \%]
+[% CONF lang "en" \%]
+[% CONF searchnum "30" \%]
+[% CONF listnum "5" \%]
+[% CONF filenum "10" \%]
+[% CONF commentmode "login" \%]
+[% CONF frontpage "FrontPage" \%]
+<?xml version="1.0" encoding="UTF-8"?>
+[%--------------------------------
+  - preamble
+  --------------------------------\%]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[% lang ENC XML %]" lang="[% lang ENC XML %]">
+<head>
+<meta http-equiv="Content-Language" content="[% lang ENC XML %]" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<link rel="contents" href="[% scriptname %]" />
+<link rel="stylesheet" href="[% scriptprefix %].css" />
+[% IF subtitle \%]
+<title>[% title ENC XML %]: [% subtitle ENC XML %]</title>
+[% ELSE \%]
+<title>[% title ENC XML %]</title>
+[% END \%]
+</head>
+<body>
+<div id="main" class="view_[% view ENC XML %] view_main">
+[%--------------------------------
+  - navigation bar
+  --------------------------------\%]
+<div id="topnavi">
+[% IF basicauth \%]
+<span>Welcome, [% username ENC XML %]</span> -
+[% ELSE \%]
+[% IF users \%]
+[% IF username \%]
+<span>Welcome, [% username ENC XML %]</span> -
+<a href="[% scriptname %]?act=logout">Logout</a>
+[% ELSE \%]
+<a href="[% scriptname %]?act=login">Login</a>
+[% END \%]
+[% END \%]
+[% END \%]
+<a href="[% scriptname %]">Top</a>
+[% IF users \%]
+[% IF admin \%]
+<a href="[% scriptname %]?act=users">Users</a>
+[% END \%]
+[% END \%]
+[% IF auth \%]
+[% IF upload \%]
+<a href="[% scriptname %]?act=files">Files</a>
+[% END \%]
+[% IF view EQ "front" \%]
+[% IF art.frozen NOT \%]
+<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]">Edit</a>
+[% END \%]
+[% END \%]
+[% IF view EQ "single" \%]
+[% IF art.frozen NOT \%]
+<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]">Edit</a>
+[% END \%]
+[% ELSE \%]
+<a href="[% scriptname %]?act=edit">Post</a>
+[% END \%]
+[% END \%]
+<a href="[% scriptname %]?act=search">Search</a>
+[% IF prev \%]
+<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]">Prev</a>
+[% END \%]
+[% IF next \%]
+<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]">Next</a>
+[% END \%]
+</div>
+[%--------------------------------
+  - global information
+  --------------------------------\%]
+[% IF emsgs \%]
+<h2>Error</h2>
+[% FOREACH emsgs emsg \%]
+<p class="error">[% emsg ENC XML %]</p>
+[% END \%]
+[% END \%]
+[%--------------------------------
+  - login view
+  --------------------------------\%]
+[% IF view EQ "login" \%]
+<hr />
+[% IF params.user \%]
+<p class="info">The input data was wrong.  Please confirm it and retry.</p>
+[% ELSE \%]
+<p class="info">Input your account information.</p>
+[% END \%]
+<form method="post" action="[% scriptname %]" class="loginform">
+<table summary="login form">
+<tr>
+<td>user name:</td>
+<td><input type="text" name="user" value="[% params.user ENC XML %]" size="16" /></td>
+</tr>
+<tr>
+<td>password:</td>
+<td><input type="password" name="pass" value="" size="16" /></td>
+</tr>
+<tr>
+<td></td>
+<td>
+<input type="submit" value="login" />
+<input type="hidden" name="id" value="[% params.id ENC XML %]" />
+<input type="hidden" name="name" value="[% params.name ENC XML %]" />
+<input type="hidden" name="act" value="logincheck" />
+</td>
+</tr>
+</table>
+</form>
+[% END \%]
+[%--------------------------------
+  - empty view
+  --------------------------------\%]
+[% IF view EQ "empty" \%]
+<hr />
+<p class="info">There is no article for "<cite>[% cond ENC XML %]</cite>".</p>
+[% IF missname \%]
+<p class="info">Post a new article for "<cite><a href="[% scriptname %]?act=edit&amp;name=[% missname ENC XML %]">[% missname ENC XML %]</a></cite>".</p>
+[% END \%]
+[% END \%]
+[%--------------------------------
+  - single view
+  --------------------------------\%]
+[% IF view EQ "single" \%]
+<hr />
+<div class="article" id="article[% art.id ENC XML %]">
+<h1 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h1>
+<div class="attr">ID: <span class="id">[% art.id ENC XML %]</span></div>
+[% IF art.cdate \%]
+<div class="attr">creation date: <span class="cdatesimple">[% art.cdatesimple ENC XML %]</span></div>
+[% END \%]
+[% IF art.mdate \%]
+<div class="attr">modification date: <span class="mdatesimple">[% art.mdatesimple ENC XML %]</span></div>
+[% END \%]
+[% IF art.owner \%]
+<div class="attr">owner: <span class="owner">[% art.owner ENC XML %]</span></div>
+[% END \%]
+[% IF art.tags \%]
+<div class="attr">tags: <span class="tags">[% art.tags ENC XML %]</span></div>
+[% END \%]
+[% IF art.texthtml \%]
+<div class="text">
+[% art.texthtml \%]
+</div>
+[% END \%]
+[% IF art.comnum \%]
+<div class="comments" id="article[% art.id ENC XML %]_comments">
+<div class="meta">[% art.comnum ENC XML %] comments</div>
+[% FOREACH art.comments com \%]
+<div class="comment">
+<span class="owner">[% com.owner ENC XML %]</span> :
+<span class="text">[% com.texthtml %]</span>
+<span class="date">([% com.datesimple ENC XML %])</span>
+</div>
+[% END \%]
+[% IF art.cancom \%]
+<form method="post" action="[% scriptname %]" class="commentform">
+<div class="commentformline">
+[% IF username \%]
+<span>[% username ENC XML %]</span> :
+<input type="hidden" name="comowner" value="[% username ENC XML %]" />
+[% ELSE \%]
+<input type="text" name="comowner" value="[% params.comowner ENC XML %]" size="8" /> :
+[% END \%]
+<input type="text" name="comtext" value="" size="48" />
+<input type="submit" value="comment" />
+<input type="hidden" name="id" value="[% art.id ENC XML %]" />
+<input type="hidden" name="act" value="comment" />
+</div>
+</form>
+[% END \%]
+</div>
+[% END \%]
+</div>
+[% END \%]
+[%--------------------------------
+  - search view
+  --------------------------------\%]
+[% IF view EQ "search" \%]
+<hr />
+[% IF cond \%]
+<p class="info">There are multiple articles for "<cite>[% cond ENC XML %]</cite>".</p>
+[% ELSE \%]
+<form method="get" action="[% scriptname %]" class="searchform">
+<div>
+<input type="text" name="expr" value="[% params.expr ENC XML %]" size="64" />
+<input type="submit" value="search" />
+</div>
+<div>
+from
+<select name="cond">
+<option value="main"[% IF params.cond EQ "main" %] selected="selected"[% END %]>name and text</option>
+<option value="name"[% IF params.cond EQ "name" %] selected="selected"[% END %]>name (full matching)</option>
+<option value="namebw"[% IF params.cond EQ "namebw" %] selected="selected"[% END %]>name (forward matching)</option>
+<option value="namefts"[% IF params.cond EQ "namefts" %] selected="selected"[% END %]>name (full-text search)</option>
+<option value="owner"[% IF params.cond EQ "owner" %] selected="selected"[% END %]>owner (full matching)</option>
+<option value="ownerbw"[% IF params.cond EQ "ownerbw" %] selected="selected"[% END %]>owner (forward matching)</option>
+<option value="ownerfts"[% IF params.cond EQ "ownerfts" %] selected="selected"[% END %]>owner (full-text search)</option>
+<option value="tags"[% IF params.cond EQ "tags" %] selected="selected"[% END %]>tags (union)</option>
+<option value="tags"[% IF params.cond EQ "tags" %] selected="selected"[% END %]>tags (intersection)</option>
+<option value="tagsfts"[% IF params.cond EQ "tagsfts" %] selected="selected"[% END %]>tags (full-text search)</option>
+<option value="text"[% IF params.cond EQ "text" %] selected="selected"[% END %]>body (full-text search)</option>
+<option value="any"[% IF params.cond EQ "any" %] selected="selected"[% END %]>any (full-text search)</option>
+</select>
+, sort by
+<select name="order">
+<option value="cdate"[% IF params.order EQ "cdate" %] selected="selected"[% END %]>creation date (descending)</option>
+<option value="_cdate"[% IF params.order EQ "_cdate" %] selected="selected"[% END %]>creation date (ascending)</option>
+<option value="mdate"[% IF params.order EQ "mdate" %] selected="selected"[% END %]>modification date (decending)</option>
+<option value="_mdate"[% IF params.order EQ "_mdate" %] selected="selected"[% END %]>modification date (ascending)</option>
+</select>
+<input type="hidden" name="act" value="search" />
+</div>
+</form>
+[% END \%]
+[% IF arts \%]
+<dl id="searchresult">
+[% FOREACH arts art \%]
+<dt id="article[% art.id ENC XML %]"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></dt>
+<dd>ID=<span class="id">[% art.id ENC XML %]</span>[% IF art.cdate %], cdate=<span class="cdate">[% art.cdate ENC XML %]</span>[% END %][% IF art.owner %], owner=<span class="owner">[% art.owner ENC XML %]</span>[% END %]</dd>
+[% IF art.texttiny \%]
+<dd>[% art.texttiny ENC XML %]</dd>
+[% END \%]
+[% IF art.textkwichtml \%]
+<dd>[% art.textkwichtml %]</dd>
+[% END \%]
+[% END \%]
+</dl>
+[% ELSE \%]
+[% IF resnum \%]
+<p class="info">There is no matching article.</p>
+[% END \%]
+[% END \%]
+[% END \%]
+[%--------------------------------
+  - front view
+  --------------------------------\%]
+[% IF view EQ "front" \%]
+<hr />
+<div class="article" id="frontpage">
+<h1 class="attr ah0"><a href="[% scriptname %]" class="name">[% art.name ENC XML %]</a></h1>
+[% IF art.texthtml \%]
+<div class="text">
+[% art.texthtml \%]
+</div>
+[% END \%]
+</div>
+[% END \%]
+[%--------------------------------
+  - list view
+  --------------------------------\%]
+[% IF view EQ "list" \%]
+<h1 class="title"><a href="[% scriptname %]">[% title ENC XML %]</a></h1>
+[% FOREACH arts art \%]
+<hr />
+<div class="article" id="article[% art.id ENC XML %]">
+<h2 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h2>
+[% IF art.cdate \%]
+<div class="attr"><span class="cdatesimple">[% art.cdatesimple ENC XML %]</span></div>
+[% END \%]
+[% IF art.owner \%]
+<div class="attr"><span class="owner">[% art.owner ENC XML %]</span></div>
+[% END \%]
+[% IF art.texthtml \%]
+<div class="text">
+[% art.texthtml \%]
+</div>
+[% END \%]
+[% IF art.comnum \%]
+<div class="comnum"><a href="[% scriptname %]?id=[% art.id ENC XML %]#article[% art.id ENC XML %]_comments">([% art.comnum ENC XML %] comments)</a></div>
+[% END \%]
+</div>
+[% END \%]
+[% END \%]
+[%--------------------------------
+  - edit view
+  --------------------------------\%]
+[% IF view EQ "edit" \%]
+<hr />
+[% IF art \%]
+<p class="info">Edit the article "<cite>[% art.name ENC XML %]</cite>" (id=[% art.id ENC XML %]).</p>
+[% ELSE \%]
+<p class="info">Post a new article.</p>
+[% END \%]
+<form method="post" action="[% scriptname %]" class="editform">
+<div class="editformwiki">
+[% IF wiki \%]
+<textarea name="wiki" rows="30" cols="80">[% wiki ENC XML %]</textarea>
+[% ELSE \%]
+<textarea name="wiki" rows="30" cols="80">#! [% name ENC XML %]
+#c [% now ENC XML %]
+#m [% now ENC XML %]
+#o [% user ENC XML %]
+#t [% tags ENC XML %]
+
+</textarea>
+[% END \%]
+</div>
+<div class="editformsubmit">
+<input type="submit" value="submit" />
+- modify timestamp:<input type="checkbox" name="mts" value="on" checked="checked" />
+<input type="hidden" name="id" value="[% art.id ENC XML %]" />
+<input type="hidden" name="hash" value="[% art.hash ENC XML %]" />
+<input type="hidden" name="act" value="preview" />
+</div>
+</form>
+[% END \%]
+[%--------------------------------
+  - collision view
+  --------------------------------\%]
+[% IF view EQ "collision" \%]
+<hr />
+<p class="info">Collision was detected.  Please resolve it and retry.</p>
+<form method="post" action="[% scriptname %]" class="editform">
+<div class="editformwiki">
+<div>current version:</div>
+<textarea name="wiki" rows="15" cols="80" readonly="readonly">[% wiki ENC XML %]</textarea>
+</div>
+<div class="editformwiki">
+<div>your version:</div>
+<textarea name="yourwiki" rows="15" cols="80" readonly="readonly">[% yourwiki ENC XML %]</textarea>
+</div>
+</form>
+[% END \%]
+[%--------------------------------
+  - removecheck view
+  --------------------------------\%]
+[% IF view EQ "removecheck" \%]
+<hr />
+<p class="info">Confirm that you will remove the article "<cite>[% art.name ENC XML%]</cite>" (id=[% id ENC XML %]).</p>
+<form method="post" action="[% scriptname %]" class="editform">
+<div class="editformsubmit">
+<input type="submit" value="submit" />
+<input type="hidden" name="id" value="[% id ENC XML %]" />
+<input type="hidden" name="hash" value="[% hash ENC XML %]" />
+<input type="hidden" name="act" value="update" />
+</div>
+</form>
+[% END \%]
+[%--------------------------------
+  - preview view
+  --------------------------------\%]
+[% IF view EQ "preview" \%]
+<hr />
+<p class="info">Preview the article.</p>
+<div class="article" id="article[% art.id ENC XML %]">
+<h1 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h1>
+<div class="attr">ID: <span class="id">[% art.id ENC XML %]</span></div>
+[% IF art.cdate \%]
+<div class="attr">creation date: <span class="cdate">[% art.cdate ENC XML %]</span></div>
+[% END \%]
+[% IF art.mdate \%]
+<div class="attr">modification date: <span class="mdate">[% art.mdate ENC XML %]</span></div>
+[% END \%]
+[% IF art.owner \%]
+<div class="attr">owner: <span class="owner">[% art.owner ENC XML %]</span></div>
+[% END \%]
+[% IF art.tags \%]
+<div class="attr">tags: <span class="tags">[% art.tags ENC XML %]</span></div>
+[% END \%]
+[% IF art.texthtml \%]
+<div class="text">
+[% art.texthtml \%]
+</div>
+[% END \%]
+[% IF art.comnum \%]
+<div class="comnum"><a href="[% scriptname %]?id=[% art.id ENC XML %]#article[% art.id ENC XML %]_comments">([% art.comnum ENC XML %] comments)</a></div>
+[% END \%]
+</div>
+<form method="post" action="[% scriptname %]" class="editform">
+<div class="editformwiki">
+<textarea name="wiki" rows="10" cols="80" readonly="readonly">[% wiki ENC XML %]</textarea>
+</div>
+<div class="editformsubmit">
+<input type="submit" value="submit" />
+- modify timestamp:<input type="checkbox" name="mts" value="on"[% IF mts %] checked="checked"[% END %] readonly="readonly" />
+<input type="hidden" name="id" value="[% id ENC XML %]" />
+<input type="hidden" name="hash" value="[% hash ENC XML %]" />
+<input type="hidden" name="act" value="update" />
+</div>
+</form>
+[% END \%]
+[%--------------------------------
+  - store view
+  --------------------------------\%]
+[% IF view EQ "store" \%]
+<hr />
+<p class="info">The article "<cite><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></cite>" ([% art.id ENC XML %]) have been stored.</p>
+[% END \%]
+[%--------------------------------
+  - remove view
+  --------------------------------\%]
+[% IF view EQ "remove" \%]
+<hr />
+<p class="info">The article "<cite>[% art.name ENC XML %]</cite>" ([% art.id ENC XML %]) have been removed.</p>
+[% END \%]
+[%--------------------------------
+  - users view
+  --------------------------------\%]
+[% IF view EQ "users" \%]
+<hr />
+[% IF newuser \%]
+<p class="info">A new user "<cite>[% newuser ENC XML %]</cite>" have been created.</p>
+[% END \%]
+[% IF chpwuser \%]
+<p class="info">The password of the user "<cite>[% chpwuser ENC XML %]</cite>" have been changed.</p>
+[% END \%]
+[% IF deluser \%]
+<p class="info">The user "<cite>[% deluser ENC XML %]</cite>" have been deleted.</p>
+[% END \%]
+<form method="post" action="[% scriptname %]" class="usernewform">
+<dl>
+<dt>name:</dt>
+<dd>
+<input type="text" name="umname" value="" size="16" />
+<span class="note">(alphabets, digits, "-", and "_" are available)</span>
+</dd>
+<dt>information:</dt>
+<dd>
+<input type="text" name="uminfo" value="" size="32" />
+<span class="note">(artibrary characters are available)</span>
+</dd>
+<dt>password:</dt>
+<dd>
+<input type="password" name="umpassone" value="" size="16" />
+<input type="password" name="umpasstwo" value="" size="16" />
+<span class="note">(input twice)</span>
+</dd>
+<dt>action:</dt>
+<dd>
+<input type="submit" value="create" />
+<input type="hidden" name="act" value="users" />
+<input type="hidden" name="ummode" value="new" />
+</dd>
+</dl>
+</form>
+<table summary="user list" id="userlist">
+<tr>
+<th abbr="name">name</th>
+<th abbr="info">information</th>
+<th abbr="pass">change password</th>
+<th abbr="del">delete</th>
+</tr>
+[% FOREACH userlist user \%]
+<tr>
+<td class="name">[% user.name ENC XML %]</td>
+<td class="misc">[% user.info ENC XML %]</td>
+<td class="misc">
+<form method="post" action="[% scriptname %]" class="userpassform">
+<div>
+<input type="password" name="umpassone" value="" size="10" />
+<input type="password" name="umpasstwo" value="" size="10" />
+<input type="submit" value="change" class="submit" />
+<input type="hidden" name="act" value="users" />
+<input type="hidden" name="ummode" value="chpw" />
+<input type="hidden" name="umname" value="[% user.name ENC XML %]" />
+</div>
+</form>
+</td>
+<td class="misc">
+[% IF user.admin \%]
+n/a
+[% ELSE \%]
+<form method="post" action="[% scriptname %]" class="userdelform">
+<div>
+confirm:<input type="checkbox" name="confirm" value="on" />
+<input type="submit" value="delete" class="submit" />
+<input type="hidden" name="act" value="users" />
+<input type="hidden" name="ummode" value="del" />
+<input type="hidden" name="umname" value="[% user.name ENC XML %]" />
+</div>
+</form>
+[% END \%]
+</td>
+</tr>
+[% END \%]
+</table>
+[% END \%]
+[%--------------------------------
+  - files view
+  --------------------------------\%]
+[% IF view EQ "files" \%]
+<hr />
+[% IF newfile \%]
+<p class="info">A new file "<cite>[% newfile ENC XML %]</cite>" have been added.</p>
+[% END \%]
+[% IF replfile \%]
+<p class="info">The file "<cite>[% replfile ENC XML %]</cite>" have been replaced.</p>
+[% END \%]
+[% IF delfile \%]
+<p class="info">The file "<cite>[% delfile ENC XML %]</cite>" have been deleted.</p>
+[% END \%]
+<form method="post" action="[% scriptname %]" enctype="multipart/form-data" class="filenewform">
+<dl>
+<dt>file:</dt>
+<dd>
+<input type="file" name="fmfile" size="48" />
+</dd>
+<dt>name:</dt>
+<dd>
+<input type="text" name="fmname" value="" size="24" />
+<span class="note">(option: the file name is adopted by default)</span>
+</dd>
+<dt>action:</dt>
+<dd>
+<input type="submit" value="upload" />
+<input type="hidden" name="act" value="files" />
+<input type="hidden" name="fmmode" value="new" />
+[% IF params.fmthum EQ "on" \%]
+<input type="hidden" name="fmthum" value="on" />
+[% END \%]
+</dd>
+</dl>
+</form>
+<form method="get" action="[% scriptname %]" class="filesearchform">
+<div>
+Search:
+<input type="text" name="expr" value="[% params.expr ENC XML %]" size="16" />
+<select name="order">
+<option value="cdate"[% IF params.order EQ "cdate" %] selected="selected"[% END %]>descending</option>
+<option value="_cdate"[% IF params.order EQ "_cdate" %] selected="selected"[% END %]>ascending</option>
+</select>
+thumnail:<input type="checkbox" name="fmthum" value="on"[% IF params.fmthum EQ "on" %] checked="checked"[% END %] />
+<input type="submit" value="search" />
+<input type="hidden" name="act" value="files" />
+</div>
+</form>
+[% IF files \%]
+<table summary="file list" id="filelist">
+<tr>
+<th abbr="name">name</th>
+<th abbr="date">information</th>
+<th abbr="repl">replace</th>
+<th abbr="del">delete</th>
+</tr>
+[% FOREACH files file \%]
+<tr>
+<td class="name">
+<div class="name"><a href="[% scriptname %]/[% file.path ENC URL %]" class="filename">[% file.name ENC XML %]</a></div>
+<div class="relative"><a href="upfile:[% file.path ENC XML %]" class="label">(relative)</a></div>
+[% IF file.thumnail \%]
+<div class="thumnail"><img src="[% scriptname %]/[% file.path ENC URL %]" width="100" alt="thumnail" /></div>
+[% END \%]
+</td>
+<td class="misc">
+<div class="date">[% file.date ENC XML %]</div>
+<div class="type">[% file.typename ENC XML %]</div>
+<div class="size">[% file.size ENC XML %] bytes</div>
+</td>
+<td class="misc">
+<form method="post" action="[% scriptname %]" enctype="multipart/form-data" class="filereplform">
+<div>
+<input type="file" name="fmfile" size="1" class="fileinput" />
+<input type="submit" value="replace" class="submit" />
+<input type="hidden" name="act" value="files" />
+<input type="hidden" name="fmmode" value="repl" />
+<input type="hidden" name="fmpath" value="[% file.path ENC XML %]" />
+<input type="hidden" name="fmname" value="[% file.name ENC XML %]" />
+[% IF params.fmthum EQ "on" \%]
+<input type="hidden" name="fmthum" value="on" />
+[% END \%]
+</div>
+</form>
+</td>
+<td class="misc">
+<form method="post" action="[% scriptname %]" class="filedelform">
+<div>
+confirm:<input type="checkbox" name="confirm" value="on" />
+<input type="submit" value="delete" class="submit" />
+<input type="hidden" name="act" value="files" />
+<input type="hidden" name="fmmode" value="del" />
+<input type="hidden" name="fmpath" value="[% file.path ENC XML %]" />
+<input type="hidden" name="fmname" value="[% file.name ENC XML %]" />
+[% IF params.fmthum EQ "on" \%]
+<input type="hidden" name="fmthum" value="on" />
+[% END \%]
+</div>
+</form>
+</td>
+</tr>
+[% END \%]
+</table>
+[% ELSE \%]
+<p class="info">There is no file.</p>
+[% END \%]
+[% END \%]
+[%--------------------------------
+  - footer
+  --------------------------------\%]
+<hr />
+[% IF page \%]
+<div id="botnavi">
+[% IF prev \%]
+<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]">Prev</a>
+[% END \%]
+[% IF next \%]
+<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]">Next</a>
+[% END \%]
+</div>
+[% END \%]
+<div id="footer">Powered by <a href="http://tokyocabinet.sourceforge.net/promenadedoc/">Tokyo Promenade</a> [% tpversion ENC XML %].</div>
+</div>
+</body>
+</html>

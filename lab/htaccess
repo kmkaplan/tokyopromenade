@@ -1,0 +1,4 @@
+AuthUserFile /home/mikio/htpasswd
+AuthName "Tokyo Promenade"
+AuthType Basic
+require valid-user
