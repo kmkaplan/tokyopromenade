@@ -19,6 +19,7 @@ PACKAGETGZ = $(PACKAGE)-$(VERSION).tar.gz
 # Targets
 COMMANDFILES = @MYCOMMANDFILES@
 CGIFILES = @MYCGIFILES@
+CGISCRFILES = @MYCGISCRFILES@
 MAN1FILES = @MYMAN1FILES@
 DATAFILES = @MYDATAFILES@
 DOCUMENTFILES = @MYDOCUMENTFILES@
@@ -75,7 +76,7 @@ all : $(COMMANDFILES) $(CGIFILES)
 clean :
 	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(COMMANDFILES) $(CGIFILES) \
 	  *.o a.out check.in check.out gmon.out *.vlog casket* *.tct* upload \
-	  *~ hoge moge tako ika tmp
+	  *~ hoge moge tako ika tmp diff
 
 
 version :
@@ -93,15 +94,15 @@ untabify :
 
 password :
 	printf '[salt]:tokyopromenade\n' > passwd.txt
+	printf '[riddle]:tokyo:Where is the capital city of Japan?\n' >> passwd.txt
 	printf 'admin:41109d0fe0b2c6fcded40bec321c7e0f:Administrator\n' >> passwd.txt
-	printf 'guest:f0bd1160fc56236b8a346fdca9a69c79:Guest User\n' >>  passwd.txt
 
 
 install :
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp -Rf $(COMMANDFILES) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBEXECDIR)
-	cp -Rf $(CGIFILES) $(DESTDIR)$(LIBEXECDIR)
+	cp -Rf $(CGIFILES) $(CGISCRFILES) $(DESTDIR)$(LIBEXECDIR)
 	mkdir -p $(DESTDIR)$(DATADIR)
 	cp -Rf $(DATAFILES) $(DOCUMENTFILES) $(DESTDIR)$(DATADIR)
 	mkdir -p $(DESTDIR)$(MAN1DIR)
@@ -119,7 +120,7 @@ install-strip :
 
 uninstall :
 	cd $(DESTDIR)$(BINDIR) && rm -f $(COMMANDFILES)
-	cd $(DESTDIR)$(LIBEXECDIR) && rm -f $(CGIFILES)
+	cd $(DESTDIR)$(LIBEXECDIR) && rm -f $(CGIFILES) $(CGISCRFILES)
 	cd $(DESTDIR)$(MAN1DIR) && rm -f $(MAN1FILES)
 	rm -rf $(DESTDIR)$(DATADIR)
 
@@ -145,6 +146,9 @@ check :
 	$(RUNENV) $(RUNCMD) ./prommgr convert -ft misc/tc.tpw > check.out
 	$(RUNENV) $(RUNCMD) ./prommgr create -fts casket 100000
 	$(RUNENV) $(RUNCMD) ./prommgr import casket misc > check.out
+	$(RUNENV) $(RUNCMD) ./prommgr export casket 1978 > check.out
+	$(RUNENV) $(RUNCMD) ./prommgr update casket 1978 check.out
+	$(RUNENV) $(RUNCMD) ./prommgr remove casket 1978
 	$(RUNENV) $(RUNCMD) ./promenade.cgi > check.out
 	$(RUNENV) QUERY_STRING="name=Tokyo+Cabinet" $(RUNCMD) ./promenade.cgi > check.out
 	$(RUNENV) QUERY_STRING="id=1978" $(RUNCMD) ./promenade.cgi > check.out
@@ -175,8 +179,10 @@ init :
 	./prommgr import promenade.tct misc
 	mkdir tmp
 	for((i=1;i<=100;i++)); do \
-	    printf '#! test\n#c %d0000\n\nDUP TEST No. %d.\n' "$$i" "$$i" > "tmp/dup$$i.tpw" ; \
-	    printf '#! TEST%d\n#c %d00\n\nTEST No. %d.\n' "$$i" "$$i" "$$i" > "tmp/$$i.tpw" ; \
+	    printf '#! test\n#c %d000000\n\nDUP TEST No. %d.\n' "$$i" "$$i" \
+	      > "tmp/dup$$i.tpw" ; \
+	    printf '#! TEST%d\n#c %d0000\n\nTEST No. %d.\n' "$$i" "$$i" "$$i" \
+	      > "tmp/$$i.tpw" ; \
 	  done
 	./prommgr import promenade.tct tmp
 	rm -rf tmp
@@ -192,15 +198,22 @@ init :
 #================================================================
 
 
-prommgr : prommgr.o common.o
-	$(LDENV) $(CC) $(CFLAGS) -o $@ $< common.o $(LDFLAGS) $(CMDLDFLAGS) $(LIBS)
+prommgr : prommgr.o common.o scrext.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< common.o scrext.o $(LDFLAGS) $(CMDLDFLAGS) $(LIBS)
 
 
-promenade.cgi : promenade.o common.o
-	$(LDENV) $(CC) $(CFLAGS) -o $@ $< common.o $(LDFLAGS) $(CMDLDFLAGS) $(LIBS)
+promenade.cgi : promenade.o common.o scrext.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< common.o scrext.o $(LDFLAGS) $(CMDLDFLAGS) $(LIBS)
+
+
+promenade.fcgi : promenade.c common.o scrext.o
+	$(LDENV) $(CC) $(CFLAGS) $(CPPFLAGS) -DMYFCGI -o $@ $< common.o scrext.o \
+	  $(LDFLAGS) $(CMDLDFLAGS) -lfcgi $(LIBS)
 
 
 common.o prommgr.o promenade.o : common.h
+
+scrext.o prommgr.o promenade.o : scrext.h
 
 
 

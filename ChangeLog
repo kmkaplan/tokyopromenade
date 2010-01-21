@@ -1,6 +1,160 @@
-2008-08-05  Mikio Hirabayashi  <mikio@users.sourceforge.net>
+2010-01-01  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (datestrsimple): a bug related to handling time zone was fixed.
+
+	* promenade.c (dosession): empty content-length is now handled properly.
+
+	* promenade.c (dosession): view of duplicated name list was modified.
+
+	- Release: 0.9.19
+
+2009-11-18  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (dosession): CSRF guard was added.
+
+	- Release: 0.9.18
+
+2009-10-30  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (realmain): the password file made reloaded when the FastCGI mode.
+
+	* promenade.c (dosession): leading space characters are now removed from the template.
+
+	* common.c (wikitohtml): the alternative text is now supported.
+
+	- Release: 0.9.17
+
+2009-10-28  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (main, dosession): FastCGI support was added.
+
+	- Release: 0.9.16
+
+2009-10-26  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (main, dosession): the riddle authorization was added.
+
+	- Release: 0.9.15
+
+2009-10-23  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (main): the "DirectoryIndex" mechanism is now supported.
+
+	* promenade.c (dosession): the "path" parameter of the cookie header was abolished.
+
+	- Release: 0.9.14
+
+2009-10-15  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (dosession): calling the Lua extension was added.
+
+	* prommgr.c (runupdate, procupdate): new functions.
+
+	* scrext.h, scrext.c: new files.
+
+	- Release: 0.9.13
+
+2009-09-18  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (dosession): a bug related to the recent comment list was fixed.
+
+	* promenade.c (dosession): a bug of format injection was fixed.
+
+	* prommgr.c (runremove, procremove): new functions.
+
+	- Release: 0.9.12
+
+2009-09-16  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikitohtmlinline): the variable expression was added.
+
+	- Release: 0.9.11
+
+2009-09-12  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (dosesssion): the "uploadpub" parameter was added.
+
+	* common.c (wikitohtmlinline): the default URL of the Wikipedia notation was added.
+
+	* common.c (wikitohtmlinline): a bug related to escaping multibyte file name was fixed.
+
+	* common.c (wikitohtml, wikitohtmlinline): direct linking to upload files was added.
+
+	- Release: 0.9.10
+
+2009-09-09  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (searcharts): range search with date was added.
+
+	* promenade.c (dosesssion): archive view was added.
+
+	- Release: 0.9.9
+
+2009-09-07  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* promenade.c (main, dosession): features for the side bar were added.
+
+	- Release: 0.9.8
+
+2009-08-27  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikitohtml): a bug of double escape was fixed.
+
+	* common.c (mimetype): URLs with query strings are now supported.
+
+	* promenade.c (dosession): the search view was enhanced.
+
+	* promenade.c (main, dosession): the "sessionlife" parameter was added.
+
+	- Release: 0.9.7
+
+2009-08-25  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikitohtml): the "object" element is now supported.
+
+	* promenade.c (dosession): adjustment for front pages was added.
+
+	* promenade.c (doupdatecmd): new function.
+
+	* promupdiff, promupping: new files.
+
+	- Release: 0.9.6
+
+2009-08-23  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikiload): the "xdate" attribute was separated.
+
+	* promenade.c (dosession): a bug related to auto date modification was fixed.
+
+	- Release: 0.9.5
+
+2009-08-22  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikitohtml): image table is now supported.
+
+	* promenade.c (searchart): hidden tag is now supported.
+
+	- Release: 0.9.4
+
+2009-08-19  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (wikitohtml): image alignment was added.
+
+	* promenade.c (dosession): cacheing strategy was modified.
+
+	- Release: 0.9.3
+
+2009-08-14  Mikio Hirabayashi  <hirarin@gmail.com>
+
+	* common.c (dbputart, dboutart): transaction is now enabled.
+
+	* promenade.c (dosession): Atom feed is now supported.
+
+	- Release: 0.9.2
+
+2009-08-05  Mikio Hirabayashi  <hirarin@gmail.com>
 
 	- The initial version.
 
-	- Release: 0.9.0
+	- Release: 0.9.1
 

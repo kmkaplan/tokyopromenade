@@ -1,6 +1,6 @@
 /*************************************************************************************************
  * The utility API of Tokyo Promenade
- *                                                      Copyright (C) 2008-2009 Mikio Hirabayashi
+ *                                                      Copyright (C) 2008-2010 Mikio Hirabayashi
  * This file is part of Tokyo Promenade.
  * This program is free software: you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation, either version
@@ -14,6 +14,10 @@
 
 
 #include "common.h"
+
+#define HEADLVMAX      6                 // maximum level of header
+#define SPACELVMAX     8                 // maximum level of spacer
+#define IMAGELVMAX     6                 // maximum level of image
 
 
 
@@ -37,6 +41,7 @@ void wikiload(TCMAP *cols, const char *str){
   }
   TCXSTR *text = tcxstrnew3(size + 1);
   TCXSTR *comments = tcxstrnew3(size + 1);
+  int64_t xdate = INT64_MIN;
   bool body = false;
   char numbuf[NUMBUFSIZ];
   for(int i = 0; i < lnum; i++){
@@ -49,25 +54,27 @@ void wikiload(TCMAP *cols, const char *str){
     if(*line == '#'){
       const char *rp = line + 1;
       if(*rp == ':'){
-        int64_t norm = atoi(rp + 1);
-        if(norm > 0){
-          sprintf(numbuf, "%lld", (long long)norm);
+        int64_t id = atoi(rp + 1);
+        if(id > 0){
+          sprintf(numbuf, "%lld", (long long)id);
           tcmapputkeep2(cols, "id", numbuf);
         }
       } else if(*rp == '!' && !body){
         rp = tcstrsqzspc((char *)rp + 1);
         if(*rp != '\0') tcmapputkeep2(cols, "name", rp);
       } else if(*rp == 'c' && !body){
-        int64_t norm = tcstrmktime(rp + 1);
-        if(norm != INT64_MIN){
-          sprintf(numbuf, "%lld", (long long)norm);
+        int64_t date = tcstrmktime(rp + 1);
+        if(date != INT64_MIN){
+          sprintf(numbuf, "%lld", (long long)date);
           tcmapputkeep2(cols, "cdate", numbuf);
+          if(date > xdate) xdate = date;
         }
       } else if(*rp == 'm' && !body){
-        int64_t norm = tcstrmktime(rp + 1);
-        if(norm != INT64_MIN){
-          sprintf(numbuf, "%lld", (long long)norm);
+        int64_t date = tcstrmktime(rp + 1);
+        if(date != INT64_MIN){
+          sprintf(numbuf, "%lld", (long long)date);
           tcmapputkeep2(cols, "mdate", numbuf);
+          if(date > xdate) xdate = date;
         }
       } else if(*rp == 'o' && !body){
         rp = tcstrsqzspc((char *)rp + 1);
@@ -86,8 +93,10 @@ void wikiload(TCMAP *cols, const char *str){
             int64_t date = tcstrmktime(rp);
             tcstrtrim(co);
             tcstrtrim(ct);
-            if(date != INT64_MIN && *co != '\0' && *ct != '\0')
+            if(date != INT64_MIN && *co != '\0' && *ct != '\0'){
               tcxstrprintf(comments, "%lld|%s|%s\n", (long long)date, co, ct);
+              if(date > xdate) xdate = date;
+            }
           }
         }
       } else if(*rp == '-' || body){
@@ -109,6 +118,7 @@ void wikiload(TCMAP *cols, const char *str){
   tcmapputkeep(cols, "text", 4, tbuf, tsiz);
   if(tcxstrsize(comments) > 0)
     tcmapputkeep(cols, "comments", 8, tcxstrptr(comments), tcxstrsize(comments));
+  if(xdate != INT64_MIN) tcmapprintf(cols, "xdate", "%lld", (long long)xdate);
   tcxstrdel(comments);
   tcxstrdel(text);
   tclistdel(lines);
@@ -367,11 +377,11 @@ void wikitotext(TCXSTR *rbuf, const char *str){
       line += 3;
       while(*line != '\0'){
         switch(*line){
-        case '{': tcxstrprintf(sep, "%c", '}'); break;
-        case '[': tcxstrprintf(sep, "%c", ']'); break;
-        case '<': tcxstrprintf(sep, "%c", '>'); break;
-        case '(': tcxstrprintf(sep, "%c", ')'); break;
-        default: tcxstrcat(sep, line, 1); break;
+          case '{': tcxstrprintf(sep, "%c", '}'); break;
+          case '[': tcxstrprintf(sep, "%c", ']'); break;
+          case '<': tcxstrprintf(sep, "%c", '>'); break;
+          case '(': tcxstrprintf(sep, "%c", ')'); break;
+          default: tcxstrcat(sep, line, 1); break;
         }
         line++;
       }
@@ -393,9 +403,17 @@ void wikitotext(TCXSTR *rbuf, const char *str){
       ri = ei + 1;
     } else if(*line == '@'){
       line++;
-      if(*line == '<' || *line == '>') line++;
+      if(*line == '@') line++;
+      bool obj = false;
+      if(*line == '!'){
+        obj = true;
+        line++;
+      }
+      while(*line == '<' || *line == '>' || *line == '+' || *line == '-' || *line == '|'){
+        line++;
+      }
       line = tcstrskipspc(line);
-      if(*line != '\0') tcxstrprintf(rbuf, "  [IMAGE:%s]\n\n", line);
+      if(*line != '\0') tcxstrprintf(rbuf, "  [%s:%s]\n\n", obj ? "OBJECT" : "IMAGE", line);
       ri++;
     } else if(tcstrfwm(line, "===")){
       tcxstrcat2(rbuf, "----\n\n");
@@ -471,6 +489,13 @@ void wikitotextinline(TCXSTR *rbuf, const char *line){
         tcxstrcat2(rbuf, "##");
         tcfree(field);
         line = pv + 2;
+      } else if(tcstrfwm(line, "[$") && (pv = strstr(line + 2, "$]")) != NULL){
+        char *field = tcmemdup(line + 2, pv - line - 2);
+        tcxstrcat2(rbuf, "$$");
+        wikitotextinline(rbuf, field);
+        tcxstrcat2(rbuf, "$$");
+        tcfree(field);
+        line = pv + 2;
       } else if(tcstrfwm(line, "[=") && (pv = strstr(line + 2, "=]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrprintf(rbuf, "%s", field);
@@ -489,7 +514,7 @@ void wikitotextinline(TCXSTR *rbuf, const char *line){
 
 
 /* Dump the attributes and the body text of an article into an HTML string. */
-void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl){
+void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl, const char *duri){
   assert(rbuf && cols && buri && bhl >= 0);
   char idbuf[NUMBUFSIZ];
   const char *val = tcmapget2(cols, "id");
@@ -531,7 +556,7 @@ void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl){
   const char *text = tcmapget2(cols, "text");
   if(text && *text != '\0'){
     tcxstrprintf(rbuf, "<div class=\"text\">\n");
-    wikitohtml(rbuf, text, *idbuf != '\0' ? idbuf : NULL, buri, bhl + 1);
+    wikitohtml(rbuf, text, *idbuf != '\0' ? idbuf : NULL, buri, bhl + 1, duri);
     tcxstrcat2(rbuf, "</div>\n");
   }
   const char *com = tcmapget2(cols, "comments");
@@ -558,7 +583,7 @@ void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl){
             tcxstrprintf(rbuf, "<span class=\"date\">%@</span> :\n", numbuf);
             tcxstrprintf(rbuf, "<span class=\"owner\">%@</span> :\n", co);
             tcxstrprintf(rbuf, "<span class=\"text\">");
-            wikitohtmlinline(rbuf, ct, buri);
+            wikitohtmlinline(rbuf, ct, buri, duri);
             tcxstrprintf(rbuf, "</span>\n");
             tcxstrprintf(rbuf, "</div>\n");
           }
@@ -573,7 +598,8 @@ void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl){
 
 
 /* Convert a Wiki string into an HTML string. */
-void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri, int bhl){
+void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri, int bhl,
+                const char *duri){
   assert(rbuf && str && buri && bhl >= 0);
   TCLIST *lines = tcstrsplit(str, "\n");
   int lnum = tclistnum(lines);
@@ -613,7 +639,7 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
           tcxstrprintf(rbuf, "\"");
         }
         tcxstrprintf(rbuf, " class=\"ah%d topic\">", abslv);
-        wikitohtmlinline(rbuf, rp, buri);
+        wikitohtmlinline(rbuf, rp, buri, duri);
         tcxstrprintf(rbuf, "</h%d>\n", lv);
         for(int i = lv; i < HEADLVMAX; i++){
           headcnts[lv] = 0;
@@ -652,7 +678,7 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
           tcxstrprintf(rbuf, "<%s>\n", tag);
         }
         tcxstrcat2(rbuf, "<li>");
-        wikitohtmlinline(rbuf, rp, buri);
+        wikitohtmlinline(rbuf, rp, buri, duri);
       }
       while(tclistnum(stack) > 0){
         tcxstrcat2(rbuf, "</li>\n");
@@ -680,7 +706,7 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
           const char *pv = strchr(rp, sep);
           char *field = pv ? tcmemdup(rp, pv - rp) : tcstrdup(rp);
           tcstrtrim(field);
-          wikitohtmlinline(rbuf, field, buri);
+          wikitohtmlinline(rbuf, field, buri, duri);
           tcfree(field);
           tcxstrcat2(rbuf, "</td>\n");
           if(!pv) break;
@@ -703,7 +729,7 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
         rp = tcstrskipspc(rp + 1);
         if(*rp != '\0'){
           tcxstrcat2(rbuf, "<p>");
-          wikitohtmlinline(rbuf, rp, buri);
+          wikitohtmlinline(rbuf, rp, buri, duri);
           tcxstrcat2(rbuf, "</p>\n");
         }
       }
@@ -714,11 +740,11 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
       line += 3;
       while(*line != '\0'){
         switch(*line){
-        case '{': tcxstrprintf(sep, "%c", '}'); break;
-        case '[': tcxstrprintf(sep, "%c", ']'); break;
-        case '<': tcxstrprintf(sep, "%c", '>'); break;
-        case '(': tcxstrprintf(sep, "%c", ')'); break;
-        default: tcxstrcat(sep, line, 1); break;
+          case '{': tcxstrprintf(sep, "%c", '}'); break;
+          case '[': tcxstrprintf(sep, "%c", ']'); break;
+          case '<': tcxstrprintf(sep, "%c", '>'); break;
+          case '(': tcxstrprintf(sep, "%c", ')'); break;
+          default: tcxstrcat(sep, line, 1); break;
         }
         line++;
       }
@@ -741,48 +767,158 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
       ri = ei + 1;
     } else if(*line == '@'){
       line++;
-      const char *place = "normal";
-      if(*line == '<'){
-        place = "left";
-        line++;
-      } else if(*line == '>'){
-        place = "right";
+      imgcnt++;
+      bool anc = false;
+      if(*line == '@'){
+        anc = true;
         line++;
       }
+      bool obj = false;
+      if(*line == '!'){
+        obj = true;
+        line++;
+      }
+      const char *align = "normal";
+      int lv = 3;
+      if(*line == '<'){
+        align = "left";
+        line++;
+        while(*line == '<' || *line == '>'){
+          lv += (*line == '<') ? 1 : -1;
+          line++;
+        }
+      } else if(*line == '>'){
+        align = "right";
+        line++;
+        while(*line == '<' || *line == '>'){
+          lv += (*line == '>') ? 1 : -1;
+          line++;
+        }
+      } else if(*line == '+'){
+        align = "center";
+        line++;
+        while(*line == '+' || *line == '-'){
+          lv += (*line == '+') ? 1 : -1;
+          line++;
+        }
+      } else if(*line == '|'){
+        align = "table";
+        line++;
+        while(*line == '|'){
+          lv++;
+          line++;
+        }
+      }
+      if(lv < 1) lv = 1;
+      if(lv > IMAGELVMAX) lv = IMAGELVMAX;
       line = tcstrskipspc(line);
       if(*line != '\0'){
         char *uri = tcstrdup(line);
         int width = 0;
+        bool wratio = false;
         int height = 0;
+        bool hratio = false;
+        const char *alt = NULL;
+        TCLIST *params = NULL;
         char *sep = strchr(uri, '|');
         if(sep){
           *(sep++) = '\0';
           width = tcatoi(sep);
+          while(*sep >= '0' && *sep <= '9'){
+            sep++;
+          }
+          if(*sep == '%') wratio = true;
           sep = strchr(sep, '|');
-          if(sep) height = tcatoi(sep + 1);
+          if(sep){
+            sep++;
+            height = tcatoi(sep);
+            while(*sep >= '0' && *sep <= '9'){
+              sep++;
+            }
+            if(*sep == '%') hratio = true;
+            sep = strchr(sep, '|');
+            if(sep){
+              sep++;
+              alt = sep;
+              sep = strchr(sep, '|');
+              if(sep){
+                *(sep++) = '\0';
+                params = tcstrsplit(sep, "|");
+              }
+            }
+          }
         }
-        tcxstrprintf(rbuf, "<div class=\"image image_%s\"><img src=\"", place);
+        const char *name;
+        char *url;
         if(tcstrfwm(uri, "upfile:")){
           const char *rp = strstr(uri, ":") + 1;
-          tcxstrprintf(rbuf, "%s/%?", buri, rp);
+          url = tcsprintf("%s/%@", duri ? duri : buri, rp);
+          name = rp;
         } else {
-          tcxstrprintf(rbuf, "%@", uri);
+          url = tcstrdup(uri);
+          name = strrchr(uri, '/');
+          name = name ? name + 1 : uri;
         }
-        tcxstrprintf(rbuf, "\"");
-        if(width > 0) tcxstrprintf(rbuf, " width=\"%d\"", width);
-        if(height > 0) tcxstrprintf(rbuf, " height=\"%d\"", height);
-        tcxstrprintf(rbuf, " alt=\"image:%d\" /></div>\n", ++imgcnt);
+        const char *scale = width > 0 ? "sized" : "ratio";
+        tcxstrprintf(rbuf, "<div class=\"image image_%s image_%s%d image_%s\">",
+                     align, align, lv, scale);
+        if(anc) tcxstrprintf(rbuf, "<a href=\"%@\">", url);
+        if(obj){
+          tcxstrprintf(rbuf, "<object data=\"%@\"", url);
+          const char *type = mimetype(url);
+          if(type) tcxstrprintf(rbuf, " type=\"%@\"", type);
+          if(width > 0) tcxstrprintf(rbuf, " width=\"%d%@\"", width, wratio ? "%" : "");
+          if(height > 0) tcxstrprintf(rbuf, " height=\"%d%@\"", height, hratio ? "%" : "");
+          tcxstrprintf(rbuf, ">");
+          if(params){
+            int pnum = tclistnum(params) - 1;
+            for(int i = 0; i < pnum; i += 2){
+              tcxstrprintf(rbuf, "<param name=\"%@\" value=\"%@\" />",
+                           tclistval2(params, i), tclistval2(params, i + 1));
+            }
+          }
+          if(alt){
+            tcxstrprintf(rbuf, "%@", alt);
+          } else {
+            tcxstrprintf(rbuf, "object:%d:%@", imgcnt, name);
+          }
+          tcxstrprintf(rbuf, "</object>");
+        } else {
+          tcxstrprintf(rbuf, "<img src=\"%@\"", url);
+          if(width > 0) tcxstrprintf(rbuf, " width=\"%d%s\"", width, wratio ? "%" : "");
+          if(height > 0) tcxstrprintf(rbuf, " height=\"%d%s\"", height, hratio ? "%" : "");
+          if(alt){
+            tcxstrprintf(rbuf, " alt=\"%@\"", alt);
+          } else {
+            tcxstrprintf(rbuf, " alt=\"image:%d:%@\"", imgcnt, name);
+          }
+          tcxstrprintf(rbuf, " />");
+        }
+        if(anc) tcxstrprintf(rbuf, "</a>");
+        tcxstrprintf(rbuf, "</div>\n");
+        tcfree(url);
+        if(params) tclistdel(params);
         tcfree(uri);
       }
       ri++;
     } else if(tcstrfwm(line, "===")){
-      tcxstrcat2(rbuf, "<div class=\"rule\"><span>--------</span></div>\n");
+      while(*line == '='){
+        line++;
+      }
+      int lv = 0;
+      while(*line == '#'){
+        line++;
+        lv++;
+      }
+      if(lv > SPACELVMAX) lv = SPACELVMAX;
+      tcxstrprintf(rbuf, "<div class=\"rule rule_s%d\">"
+                   "<span>----</span></div>\n", lv);
       ri++;
     } else {
       line = tcstrskipspc(line);
       if(*line != '\0'){
         tcxstrcat2(rbuf, "<p>");
-        wikitohtmlinline(rbuf, line, buri);
+        wikitohtmlinline(rbuf, line, buri, duri);
         tcxstrcat2(rbuf, "</p>\n");
         ri++;
       } else {
@@ -794,11 +930,8 @@ void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri,
 }
 
 
-/* Add an inline Wiki string into HTML.
-   `rbuf' specifies the result buffer.
-   `line' specifies the inline Wiki string.
-   `buri' specifies the base URI. */
-void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri){
+/* Add an inline Wiki string into HTML. */
+void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri, const char *duri){
   assert(rbuf && line && buri);
   while(*line != '\0'){
     const char *pv;
@@ -811,70 +944,80 @@ void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri){
           *sep = '\0';
           uri = sep + 1;
         }
-        if(tcstrfwm(uri, "http://") || tcstrfwm(uri, "https://")){
+        if(tcstrfwm(uri, "http://") || tcstrfwm(uri, "https://") ||
+           tcstrfwm(uri, "ftp://") || tcstrfwm(uri, "mailto:")){
           tcxstrprintf(rbuf, "<a href=\"%@\">", uri);
         } else if(tcstrfwm(uri, "id:")){
           int64_t id = tcatoi(tcstrskipspc(strchr(uri, ':') + 1));
           tcxstrprintf(rbuf, "<a href=\"%s?id=%lld\">", buri, (long long)(id > 0 ? id : 0));
         } else if(tcstrfwm(uri, "name:")){
-          uri  = tcstrskipspc(strchr(uri, ':') + 1);
+          uri = tcstrskipspc(strchr(uri, ':') + 1);
           tcxstrprintf(rbuf, "<a href=\"%s?name=%?\">", buri, uri);
         } else if(tcstrfwm(uri, "param:")){
-          uri  = tcstrskipspc(strchr(uri, ':') + 1);
+          uri = tcstrskipspc(strchr(uri, ':') + 1);
           tcxstrprintf(rbuf, "<a href=\"%s%s%@\">", buri, *uri != 0 ? "?" : "", uri);
         } else if(tcstrfwm(uri, "upfile:")){
-          uri  = tcstrskipspc(strchr(uri, ':') + 1);
-          tcxstrprintf(rbuf, "<a href=\"%s/%?\">", buri, uri);
+          uri = tcstrskipspc(strchr(uri, ':') + 1);
+          tcxstrprintf(rbuf, "<a href=\"%s/%@\">", duri ? duri : buri, uri);
         } else if(tcstrfwm(uri, "wpen:")){
-          uri  = tcstrskipspc(strchr(uri, ':') + 1);
+          uri = tcstrskipspc(strchr(uri, ':') + 1);
+          if(*uri == '\0') uri = field;
           tcxstrprintf(rbuf, "<a href=\"http://en.wikipedia.org/wiki/%?\">", uri);
         } else if(tcstrfwm(uri, "wpja:")){
-          uri  = tcstrskipspc(strchr(uri, ':') + 1);
+          uri = tcstrskipspc(strchr(uri, ':') + 1);
+          if(*uri == '\0') uri = field;
           tcxstrprintf(rbuf, "<a href=\"http://ja.wikipedia.org/wiki/%?\">", uri);
         } else if(sep){
-          uri  = tcstrskipspc(uri);
+          uri = tcstrskipspc(uri);
           tcxstrprintf(rbuf, "<a href=\"%@\">", uri);
         } else {
-          uri  = tcstrskipspc(uri);
+          uri = tcstrskipspc(uri);
           tcxstrprintf(rbuf, "<a href=\"%s?name=%?\">", buri, uri);
         }
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrprintf(rbuf, "</a>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[*") && (pv = strstr(line + 2, "*]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrcat2(rbuf, "<strong>");
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrcat2(rbuf, "</strong>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[\"") && (pv = strstr(line + 2, "\"]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrcat2(rbuf, "<cite>");
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrcat2(rbuf, "</cite>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[+") && (pv = strstr(line + 2, "+]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrcat2(rbuf, "<ins>");
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrcat2(rbuf, "</ins>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[-") && (pv = strstr(line + 2, "-]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrcat2(rbuf, "<del>");
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrcat2(rbuf, "</del>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[#") && (pv = strstr(line + 2, "#]")) != NULL){
         char *field = tcmemdup(line + 2, pv - line - 2);
         tcxstrcat2(rbuf, "<code>");
-        wikitohtmlinline(rbuf, field, buri);
+        wikitohtmlinline(rbuf, field, buri, duri);
         tcxstrcat2(rbuf, "</code>");
+        tcfree(field);
+        line = pv + 2;
+      } else if(tcstrfwm(line, "[$") && (pv = strstr(line + 2, "$]")) != NULL){
+        char *field = tcmemdup(line + 2, pv - line - 2);
+        tcxstrcat2(rbuf, "<var>");
+        wikitohtmlinline(rbuf, field, buri, duri);
+        tcxstrcat2(rbuf, "</var>");
         tcfree(field);
         line = pv + 2;
       } else if(tcstrfwm(line, "[=") && (pv = strstr(line + 2, "=]")) != NULL){
@@ -884,21 +1027,21 @@ void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri){
         line = pv + 2;
       } else {
         switch(*line){
-        case '&': tcxstrcat(rbuf, "&amp;", 5); break;
-        case '<': tcxstrcat(rbuf, "&lt;", 4); break;
-        case '>': tcxstrcat(rbuf, "&gt;", 4); break;
-        case '"': tcxstrcat(rbuf, "&quot;", 6); break;
-        default: tcxstrcat(rbuf, line, 1); break;
+          case '&': tcxstrcat(rbuf, "&amp;", 5); break;
+          case '<': tcxstrcat(rbuf, "&lt;", 4); break;
+          case '>': tcxstrcat(rbuf, "&gt;", 4); break;
+          case '"': tcxstrcat(rbuf, "&quot;", 6); break;
+          default: tcxstrcat(rbuf, line, 1); break;
         }
         line++;
       }
     } else {
       switch(*line){
-      case '&': tcxstrcat(rbuf, "&amp;", 5); break;
-      case '<': tcxstrcat(rbuf, "&lt;", 4); break;
-      case '>': tcxstrcat(rbuf, "&gt;", 4); break;
-      case '"': tcxstrcat(rbuf, "&quot;", 6); break;
-      default: tcxstrcat(rbuf, line, 1); break;
+        case '&': tcxstrcat(rbuf, "&amp;", 5); break;
+        case '<': tcxstrcat(rbuf, "&lt;", 4); break;
+        case '>': tcxstrcat(rbuf, "&gt;", 4); break;
+        case '"': tcxstrcat(rbuf, "&quot;", 6); break;
+        default: tcxstrcat(rbuf, line, 1); break;
       }
       line++;
     }
@@ -909,12 +1052,16 @@ void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri){
 /* Simplify a date string. */
 char *datestrsimple(char *str){
   assert(str);
-  tcstrsubchr(str, "-T", "/ ");
-  char *pv = strchr(str, '+');
-  if(!pv) pv = strchr(str, 'Z');
-  if(pv) *pv = '\0';
-  pv = strrchr(str, ':');
-  if(pv) *pv = '\0';
+  char *pv = str;
+  while(*pv > '\0' && *pv <= ' '){
+    pv++;
+  }
+  int len = strlen(pv);
+  if(len <= 16 || pv[4] != '-' || pv[7] != '-' || pv[10] != 'T' || pv[13] != ':') return pv;
+  pv[4] = '/';
+  pv[7] = '/';
+  pv[10] = ' ';
+  pv[16] = '\0';
   return str;
 }
 
@@ -923,22 +1070,16 @@ char *datestrsimple(char *str){
 const char *mimetype(const char *name){
   assert(name);
   const char *list[] = {
-    "txt", "text/plain", "asc", "text/plain",
-    "in", "text/plain", "c", "text/plain",
-    "h", "text/plain", "cc", "text/plain",
-    "java", "text/plain", "sh", "text/plain",
-    "pl", "text/plain", "py", "text/plain",
-    "rb", "text/plain", "idl", "text/plain",
-    "csv", "text/plain", "log", "text/plain",
-    "conf", "text/plain", "rc", "text/plain",
-    "ini", "text/plain", "html", "text/html",
-    "htm", "text/html", "xhtml", "text/html",
-    "xht", "text/html", "css", "text/css",
-    "js", "text/javascript", "tsv", "text/tab-separated-values",
-    "eml", "message/rfc822", "mime", "message/rfc822",
-    "mht", "message/rfc822", "mhtml", "message/rfc822",
-    "sgml", "application/sgml", "sgm", "application/sgml",
-    "xml", "application/xml", "xsl", "application/xml",
+    "txt", "text/plain", "text", "text/plain", "asc", "text/plain", "in", "text/plain",
+    "c", "text/plain", "h", "text/plain", "cc", "text/plain", "java", "text/plain",
+    "sh", "text/plain", "pl", "text/plain", "py", "text/plain", "rb", "text/plain",
+    "idl", "text/plain", "csv", "text/plain", "log", "text/plain", "conf", "text/plain",
+    "rc", "text/plain", "ini", "text/plain",
+    "html", "text/html", "htm", "text/html", "xhtml", "text/html", "xht", "text/html",
+    "css", "text/css", "js", "text/javascript", "tsv", "text/tab-separated-values",
+    "eml", "message/rfc822", "mime", "message/rfc822", "mht", "message/rfc822",
+    "mhtml", "message/rfc822", "sgml", "application/sgml",
+    "sgm", "application/sgml", "xml", "application/xml", "xsl", "application/xml",
     "xslt", "application/xslt+xml", "xhtml", "application/xhtml+xml",
     "xht", "application/xhtml+xml", "rdf", "application/rdf+xml",
     "rss", "application/rss+xml", "dtd", "application/xml-dtd",
@@ -954,26 +1095,45 @@ const char *mimetype(const char *name){
     "sit", "application/octet-stream", "bin", "application/octet-stream",
     "o", "application/octet-stream", "so", "application/octet-stream",
     "exe", "application/octet-stream", "dll", "application/octet-stream",
-    "class", "application/octet-stream", "png", "image/png",
-    "gif", "image/gif", "jpg", "image/jpeg",
-    "jpeg", "image/jpeg", "tif", "image/tiff",
-    "tiff", "image/tiff", "bmp", "image/bmp",
-    "au", "audio/basic", "snd", "audio/basic",
-    "mid", "audio/midi", "midi", "audio/midi",
-    "mp2", "audio/mpeg", "mp3", "audio/mpeg",
-    "wav", "audio/x-wav", "mpg", "video/mpeg",
-    "mpeg", "video/mpeg", "qt", "video/quicktime",
+    "class", "application/octet-stream",
+    "tch", "application/x-tokyocabinet-hash", "tcb", "application/x-tokyocabinet-btree",
+    "tcf", "application/x-tokyocabinet-fixed", "tct", "application/x-tokyocabinet-table",
+    "png", "image/png", "jpg", "image/jpeg", "jpeg", "image/jpeg",
+    "gif", "image/gif", "tif", "image/tiff", "tiff", "image/tiff", "bmp", "image/bmp",
+    "svg", "image/svg+xml", "xbm", "image/x-xbitmap",
+    "au", "audio/basic", "snd", "audio/basic", "mid", "audio/midi", "midi", "audio/midi",
+    "mp2", "audio/mpeg", "mp3", "audio/mpeg", "wav", "audio/x-wav", "mpg", "video/mpeg",
+    "mpeg", "video/mpeg", "mp4", "video/mp4", "qt", "video/quicktime",
     "mov", "video/quicktime", "avi", "video/x-msvideo",
     NULL
   };
-  const char *ext = strrchr(name, '.');
+  int len = strlen(name);
+  char stack[1024];
+  char *buf = NULL;
+  if(len < sizeof(stack)){
+    buf = stack;
+  } else {
+    buf = tcmalloc(len + 1);
+  }
+  memcpy(buf, name, len);
+  buf[len] = '\0';
+  char *pv = strchr(buf, '#');
+  if(pv) *pv = '\0';
+  pv = strchr(buf, '?');
+  if(pv) *pv = '\0';
+  const char *ext = strrchr(buf, '.');
+  const char *type = NULL;
   if(ext){
     ext++;
     for(int i = 0; list[i] != NULL; i++){
-      if(!tcstricmp(ext, list[i])) return list[i+1];
+      if(!tcstricmp(ext, list[i])){
+        type = list[i+1];
+        break;
+      }
     }
   }
-  return "application/octet-stream";
+  if(buf != stack) tcfree(buf);
+  return type;
 }
 
 
@@ -1014,10 +1174,12 @@ const char *mimetypename(const char *type){
   }
   if(tcstrfwm(type, "image/")){
     if(!strcmp(rp, "png")) return "PNG image";
-    if(!strcmp(rp, "gif")) return "GIF image";
     if(!strcmp(rp, "jpeg")) return "JPEG image";
+    if(!strcmp(rp, "gif")) return "GIF image";
     if(!strcmp(rp, "tiff")) return "TIFF image";
     if(!strcmp(rp, "bmp")) return "BMP image";
+    if(!strcmp(rp, "svg+xml")) return "SVG image";
+    if(!strcmp(rp, "x-xbitmap")) return "XBM image";
     return "image";
   }
   if(tcstrfwm(type, "audio/")){
@@ -1034,6 +1196,30 @@ const char *mimetypename(const char *type){
     return "video";
   }
   return "other";
+}
+
+
+/* Encode a string with file path encoding. */
+char *pathencode(const char *str){
+  assert(str);
+  int len = strlen(str);
+  char *res = tcmalloc(len * 3 + 1);
+  char *wp = res;
+  while(true){
+    int c = *(unsigned char *)str;
+    if(c == '\0'){
+      break;
+    } else if(c == ' '){
+      *(wp++) = '+';
+    } else if(c < ' ' || c == '%' || c == '/' || c == 0x7f){
+      wp += sprintf(wp, "%%%02X", c);
+    } else {
+      *(wp++) = c;
+    }
+    str++;
+  }
+  *wp = '\0';
+  return res;
 }
 
 
@@ -1058,8 +1244,17 @@ bool dbputart(TCTDB *tdb, int64_t id, TCMAP *cols){
   wikiload(ncols, tcxstrptr(wiki));
   char pkbuf[NUMBUFSIZ];
   int pksiz = sprintf(pkbuf, "%lld", (long long)id);
-  if(tctdbput(tdb, pkbuf, pksiz, ncols)){
-    tcmapput2(cols, "id", pkbuf);
+  if(tctdbtranbegin(tdb)){
+    if(tctdbput(tdb, pkbuf, pksiz, ncols)){
+      if(tctdbtrancommit(tdb)){
+        tcmapput2(cols, "id", pkbuf);
+      } else {
+        err = true;
+      }
+    } else {
+      err = true;
+      tctdbtranabort(tdb);
+    }
   } else {
     err = true;
   }
@@ -1072,9 +1267,20 @@ bool dbputart(TCTDB *tdb, int64_t id, TCMAP *cols){
 /* Remove an article from the database. */
 bool dboutart(TCTDB *tdb, int64_t id){
   assert(tdb && id > 0);
+  bool err = false;
   char pkbuf[NUMBUFSIZ];
   int pksiz = sprintf(pkbuf, "%lld", (long long)id);
-  return tctdbout(tdb, pkbuf, pksiz);
+  if(tctdbtranbegin(tdb)){
+    if(tctdbout(tdb, pkbuf, pksiz)){
+      if(!tctdbtrancommit(tdb)) err = true;
+    } else {
+      err = true;
+      tctdbtranabort(tdb);
+    }
+  } else {
+    err = true;
+  }
+  return !err;
 }
 
 

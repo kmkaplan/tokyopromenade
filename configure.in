@@ -7,11 +7,12 @@
 #================================================================
 
 # Package name
-AC_INIT(tokyopromenade, 0.9.0)
+AC_INIT(tokyopromenade, 0.9.19)
 
 # Targets
 MYCOMMANDFILES="prommgr"
 MYCGIFILES="promenade.cgi"
+MYCGISCRFILES="promscrsample.lua promscrcount.lua promupdiff.sh promupping.sh"
 MYMAN1FILES="prommgr.1"
 MYDATAFILES="promenade.tmpl promenade.css passwd.txt"
 MYDOCUMENTFILES="COPYING ChangeLog THANKS doc misc"
@@ -91,6 +92,34 @@ then
   enables="$enables (static)"
 fi
 
+# Enable FastCGI scripts
+AC_ARG_ENABLE(fcgi,
+  AC_HELP_STRING([--enable-fcgi], [build with FastCGI scripts]))
+if test "$enable_fcgi" = "yes"
+then
+  MYCGIFILES="$MYCGIFILES promenade.fcgi"
+  enables="$enables (fcgi)"
+fi
+
+# Enable Lua extension
+AC_ARG_ENABLE(lua,
+  AC_HELP_STRING([--enable-lua], [build with Lua extension]))
+if test "$enable_lua" = "yes"
+then
+  enables="$enables (lua)"
+  luaver=`lua -e 'v = string.gsub(_VERSION, ".* ", ""); print(v)'`
+  MYCPPFLAGS="$MYCPPFLAGS -I/usr/include/lua$luaver -I/usr/local/include/lua$luaver"
+  MYCPPFLAGS="$MYCPPFLAGS -I/usr/include/lua -I/usr/local/include/lua -D_MYLUA"
+  MYLDFLAGS="$MYLDFLAGS -L/usr/include/lua$luaver -L/usr/local/include/lua$luaver"
+  MYLDFLAGS="$MYLDFLAGS -L/usr/include/lua -L/usr/local/include/lua"
+  CPATH="$CPATH:/usr/include/lua$luaver:/usr/local/include/lua$luaver"
+  CPATH="$CPATH:/usr/include/lua:/usr/local/include/lua"
+  LIBRARY_PATH="$LIBRARY_PATH:/usr/lib/lua$luaver:/usr/local/lib/lua$luaver"
+  LIBRARY_PATH="$LIBRARY_PATH:/usr/lib/lua:/usr/local/lib/lua"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/include/lua$luaver:/usr/local/include/lua$luaver"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/include/lua:/usr/local/include/lua"
+fi
+
 # Specify the installation path of Tokyo Cabinet
 AC_ARG_WITH(tc,
   AC_HELP_STRING([--with-tc=DIR], [search DIR/include and DIR/lib for Tokyo Cabinet]))
@@ -130,6 +159,19 @@ then
   LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$with_bzip/lib"
 fi
 
+# Specify the installation path of Lua
+AC_ARG_WITH(lua,
+  AC_HELP_STRING([--with-lua=DIR], [search DIR/include and DIR/lib for Lua]))
+if test -n "$with_lua"
+then
+  MYCPPFLAGS="$MYCPPFLAGS -I$with_lua/include"
+  MYLDFLAGS="$MYLDFLAGS -L$with_lua/lib"
+  MYRUNPATH="$MYRUNPATH:$with_lua/lib"
+  CPATH="$CPATH:$with_lua/include"
+  LIBRARY_PATH="$LIBRARY_PATH:$with_lua/lib"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$with_lua/lib"
+fi
+
 # Messages
 printf '#================================================================\n'
 printf '# Configuring Tokyo Promenade version %s%s.\n' "$PACKAGE_VERSION" "$enables"
@@ -164,6 +206,12 @@ AC_CHECK_LIB(pthread, main)
 AC_CHECK_LIB(z, main)
 AC_CHECK_LIB(bz2, main)
 AC_CHECK_LIB(tokyocabinet, main)
+if test "$enable_lua" = "yes"
+then
+  AC_CHECK_LIB(dl, main)
+  AC_CHECK_LIB(lua, main)
+  AC_CHECK_LIB(lua$luaver, main)
+fi
 
 # Necessary headers
 AC_CHECK_HEADER(stdlib.h, true, AC_MSG_ERROR([stdlib.h is required]))
@@ -171,6 +219,10 @@ AC_CHECK_HEADER(stdint.h, true, AC_MSG_ERROR([stdint.h is required]))
 AC_CHECK_HEADER(unistd.h, true, AC_MSG_ERROR([unistd.h is required]))
 AC_CHECK_HEADER(pthread.h, true, AC_MSG_ERROR([pthread.h is required]))
 AC_CHECK_HEADER(tcutil.h, true, AC_MSG_ERROR([tcutil.h is required]))
+if test "$enable_lua" = "yes"
+then
+  AC_CHECK_HEADER(lua.h, true, AC_MSG_ERROR([lua.h is required]))
+fi
 
 
 
@@ -181,6 +233,7 @@ AC_CHECK_HEADER(tcutil.h, true, AC_MSG_ERROR([tcutil.h is required]))
 # Export variables
 AC_SUBST(MYCOMMANDFILES)
 AC_SUBST(MYCGIFILES)
+AC_SUBST(MYCGISCRFILES)
 AC_SUBST(MYMAN1FILES)
 AC_SUBST(MYDATAFILES)
 AC_SUBST(MYDOCUMENTFILES)

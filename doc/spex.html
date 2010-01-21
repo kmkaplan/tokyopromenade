@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<meta http-equiv="Content-Language" content="en" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta name="author" content="Mikio Hirabayashi" />
+<meta name="keywords" content="Tokyo Promenade, tokyopromenade, Tokyo Cabinet, CMS, Wiki, blog" />
+<meta name="description" content="specifications of Tokyo Promenade" />
+<link rel="contents" href="./" />
+<link rel="stylesheet" href="common.css" />
+<link rev="made" href="mailto:hirarin@gmail.com" />
+<title>Tokyo Promenade: a content management system</title>
+</head>
+
+<body>
+
+<h1 id="headline">Tokyo Promenade: a content management system</h1>
+
+<div class="note">Copyright (C) 2008-2010 Mikio Hirabayashi</div>
+<div class="note">Last Update: Fri, 01 Jan 2010 14:11:57 +0900</div>
+
+<hr />
+
+<h2 id="contents">Table of Contents</h2>
+
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#administration">Administration</a></li>
+<li><a href="#license">License</a></li>
+</ol>
+
+<hr />
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Tokyo Promenade is a kind of content management system.  That is, Tokyo Promenade is a system in order to manage Web contents easily by providing total functions of browsing, authoring, editing Web contents on the Web interface itself.  Tokyo Promenade has the following features.</p>
+
+<ul>
+<li><strong>simple and logical user interface</strong> : aims at conciseness like LaTeX</li>
+<li><strong>high accessibility</strong> : complying with XHTML 1.0 and considering WCAG 1.0</li>
+<li><strong>hybrid data structure</strong> : available as BBS, blog, and Wiki</li>
+<li><strong>sufficient functionality</strong> : supports user management and file management</li>
+<li><strong>high performance</strong> : uses embedded database, Tokyo Cabinet</li>
+<li><strong>lightweight</strong> : implemented by C99 and without any dependency on other libraries</li>
+</ul>
+
+<p>Tokyo Promenade is available on platforms which have API conforming to C99 and POSIX.  Tokyo Promenade is a free software licensed under the GNU General Public License.</p>
+
+<hr />
+
+<h2 id="installation">Installation</h2>
+
+<p>Install the latest version of Tokyo Cabinet beforehand and get the package of Tokyo Promenade.</p>
+
+<p>When an archive file of Tokyo Promenade is extracted, change the current working directory to the generated directory and perform installation.</p>
+
+<p>Run the configuration script.  To enable the Lua extension, add the `--enable-lua' option.  To enable the FastCGI script, add the `--enable-fcgi' option.</p>
+
+<pre>./configure
+</pre>
+
+<p>Build programs.</p>
+
+<pre>make
+</pre>
+
+<p>Perform self-diagnostic test.</p>
+
+<pre>make check
+</pre>
+
+<p>Install programs.  This operation must be carried out by the root user.</p>
+
+<pre>make install
+</pre>
+
+<p>When a series of work finishes, the following files will be installed.</p>
+
+<pre>/usr/local/bin/prommgr
+/usr/local/libexec/promenade.cgi
+/usr/local/libexec/promscrcount.lua
+/usr/local/libexec/promupdiff.sh
+/usr/local/libexec/promupping.sh
+/usr/local/share/tokyopromenade/...
+/usr/local/man/man1/...
+/usr/local/man/man3/...
+</pre>
+
+<hr />
+
+<h2 id="deployment">Deployment</h2>
+
+<p>Install an arbitrary web server which supports the CGI mechanism.  Then, create a directory where CGI scripts can be executed.  We call it the base directory, which contains some files of Tokyo Promenade.</p>
+
+<pre>mkdir -p /path/to/the/base/directory
+cd /path/to/the/base/directory
+</pre>
+
+<p>Copy the CGI script and some configuration files into the base directory.</p>
+
+<pre>cp /usr/local/libexec/promenade.cgi .
+cp /usr/local/share/tokyopromenade/promenade.* .
+cp /usr/local/share/tokyopromenade/passwd.txt .
+</pre>
+
+<p>Create the database file where articles are stored.</p>
+
+<pre>prommgr create promenade.tct
+</pre>
+
+<p>Import the help articles into the database.</p>
+
+<pre>prommgr import promenade.tct /usr/local/share/tokyopromenade/misc/help-*.tpw
+</pre>
+
+<p>Create a directory where uploaded files are stored.</p>
+
+<pre>mkdir upload
+</pre>
+
+<p>The CGI script should have permissions to read/write the database file, the upload directory and the password file.  To achieve the purpose, one of the following is suggested.</p>
+
+<ul>
+<li>Change the owner: <code>sudo chown -R www:nobody /path/to/the/base/directory</code></li>
+<li>Forget the security: <code>chmod -R 777 /path/to/the/base/directory</code></li>
+<li>Run the web server by the same user of the owner of the base directory.</li>
+<li>Change the user ID of the CGI script by using a feature of the web server like suExec.</li>
+</ul>
+
+<p>When all steps above are finished, access the CGI script with a Web browser.</p>
+
+<hr />
+
+<h2 id="administration">Administration</h2>
+
+<p>The account for the administrator is prepared by default.  The name is "<code>admin</code>" and the default password is "<code>nimda</code>".  After the deployment of the site, what to do first is to login as the administrator and change the password.</p>
+
+<p>To login, select the "<code>Login</code>" link in the navigation bar on the top of the page.  The login form is shown and then input the user name and the password.  After the login operation, some links are added to the navigation bar.  Select the "<code>Users</code>" link and the user management form is shown and then input the new password twice in the "change password" column for the administrator and press the "change" button.</p>
+
+<p>To update the site contents, authorization by the login operation is needed.  And, the administrator only has privilege of the user management and freezing articles.  Adding the "<code>*</code>" tag to the tag attribute of each article means freezing the article.  Such frozen articles is not editable by users except for administrator.</p>
+
+<p>By default, an anchor string "About" in the navigation bar links to an article whose name is "tp-about".  Because the article is not defined, you should select the link and write it at the start.  Note that the "<code>?</code>" tag means to hide the article from the timeline page.</p>
+
+<p>The command `<code>prommgr</code>' is a command line utility.  The usage is the following.</p>
+
+<dl>
+<dt><code>prommgr create [-fts] <var>dbpath</var> [<var>scale</var>]</code></dt>
+<dd>Create the database.</dd>
+<dd>`<var>dbpath</var>' specifies the path of the database.</dd>
+<dd>`<var>scale</var>' specifies the expected number of articles.</dd>
+<dt><code>prommgr import [-suf <var>str</var>] <var>dbpath</var> <var>file</var> ... </code></dt>
+<dd>Import article files into the database.</dd>
+<dd>`<var>dbpath</var>' specifies the path of the database.</dd>
+<dd>`<var>file</var>' specifies the input file.  If it is a directory, the content files whose suffix is ".tpw" are processed.</dd>
+<dd>`-suf <var>str</var>' specifies the suffix described above.</dd>
+<dt><code>prommgr export [-dir <var>str</var>] <var>dbpath</var> [<var>id</var>]</code></dt>
+<dd>Export article files from the database.</dd>
+<dd>`<var>dbpath</var>' specifies the path of the database.</dd>
+<dd>`<var>id</var>' specifies the ID number of the target article.  If it is specifies, the result is printed into the standard output.</dd>
+<dd>`-dir <var>str</var>' specifies the path of the output directory.</dd>
+<dt><code>prommgr update <var>dbpath</var> <var>id</var> [<var>file</var>]</code></dt>
+<dd>Update an article in the database.</dd>
+<dd>`<var>dbpath</var>' specifies the path of the database.</dd>
+<dd>`<var>id</var>' specifies the ID number of the target article.  If it is 0, the ID is generated and automatically.</dd>
+<dd>`<var>file</var>' specifies the path of the wiki data of the article.  If it is omitted, the standard input is read.</dd>
+<dt><code>prommgr remove <var>dbpath</var> <var>id</var></code></dt>
+<dd>Remove an article from the database.</dd>
+<dd>`<var>id</var>' specifies the ID number of the target article.</dd>
+<dt><code>prommgr convert [-fw|-ft] [-buri <var>str</var>] [-duri <var>str</var>] [-page] [<var>file</var>]</code></dt>
+<dd>Convert an article file into other formats.  By default, the HTML format is specified.</dd>
+<dd>`<var>file</var>' specifies the input file.</dd>
+<dd>`-fw' specifies the Wiki format.</dd>
+<dd>`-ft' specifies the plain-text format.</dd>
+<dd>`-buri <var>str</var>' specifies the base URI.</dd>
+<dd>`-duri <var>str</var>' specifies the URI of the data directory.</dd>
+<dd>`-page' specifies to output the page header and the page footer.</dd>
+<dt><code>prommgr passwd [-salt <var>str</var>] [-info <var>str</var>] <var>name</var> <var>pass</var></code></dt>
+<dd>Generate password strings.</dd>
+<dd>`<var>name</var>' specifies the user name.</dd>
+<dd>`<var>pass</var>' specifies the user password.</dd>
+<dd>`-salt <var>str</var>' specifies the salt string.</dd>
+<dd>`-info <var>str</var>' specifies the miscellaneous information field.</dd>
+<dt><code>prommgr version</code></dt>
+<dd>Print the version information.</dd>
+</dl>
+
+<p>To add users by batch processing, the `<code>passwd</code>' subcommand is useful.  Take the following for example.</p>
+
+<pre>prommgr passwd -salt tokyopromenade -info "John Doe" "john" "iloveyou"
+</pre>
+
+<p>To backup the database and the upload directory, simply use the `<code>tar</code>' command.</p>
+
+<pre>tar zcvf mybackup-20090810.tar.gz promenade.tct* upload
+</pre>
+
+<p>To customize the behavior of the CGI script, edit the template file `<code>promenade.tmpl</code>'.  The following configuration variables are defined there.</p>
+
+<ul>
+<li><code>database</code> : the path of the database file</li>
+<li><code>password</code> : the path of the password file</li>
+<li><code>upload</code> : the path of the update directory</li>
+<li><code>scrext</code> : the path of the Lua extension file.</li>
+<li><code>recvmax</code> : the maximum length of the received data</li>
+<li><code>title</code> : the title of the site</li>
+<li><code>subtitle</code> : the subtitle of the site</li>
+<li><code>lang</code> : the language of the site</li>
+<li><code>author</code> : the author of the site</li>
+<li><code>searchnum</code> : the number of articles in each search page</li>
+<li><code>listnum</code> : the number of articles in each timeline page</li>
+<li><code>feedlistnum</code> : the number of articles in each feed</li>
+<li><code>filenum</code> : the number of files in each file management page</li>
+<li><code>sidebarnum</code> : the number of items in the side bar</li>
+<li><code>commentmode</code> : the type of comment authorization</li>
+<li><code>updatecmd</code> : the path of the update command</li>
+<li><code>sessionlife</code> : the lifetime of each session in seconds</li>
+<li><code>homepage</code> : the URL of the home page of the site</li>
+<li><code>frontpage</code> : the name of the article for the front page</li>
+<li><code>aboutpage</code> : the name of the article for the site introduction page</li>
+</ul>
+
+<p>The other sections of the template file describes the output data in HTML and Atom.  The file `<code>promenade.css</code>' is the CSS file to decorate HTML.  You can modify them arbitrary to customize the user interface.</p>
+
+<p>If the `<code>password</code>' is omitted or empty, authentication is disabled and all visitors can update all contents without the login operation.</p>
+
+<p>The `<code>commentmode</code>' can be "all", "riddle", "login", or "none".  "all" means that all visitors can write comments.  "riddle" means that users who cleared a riddle can write comments.  "login" means that login users only can write comments.  "none" means no user can write comments.  If the `<code>frontpage</code>' does not specified, the top page shows the timeline of recent articles.</p>
+
+<p>The `<code>scrext</code>' specifies the path of a Lua script file.  It works only when Tokyo Promenade was built with enabling the Lua extension.  There is naming convention of functions to be called.  The function "_begin" is called before the database is opened, and receives no parameter, and returns a message string to be shown by the template variable "beginmsg".  The function "_end" is called before the database is opened, and receives no parameter, and returns a message string to be shown by the template variable "endmsg".  The function "_procart" is called for each article to be printed, and receives the Wiki string of the article, and returns the converted Wiki string.  The function "_procpage" is called to convert the HTML string of the whole page to be printed, and receives the HTML string of the whole page, and returns the converted HTML string.  The configuration variables of the template file are given as a table of the global variable "_conf".  The parameters of the CGI script are given as a table of the global variable "_params".  The login user information is given as a table of the global variable "_user".  The built-in functions "_strstr" and "_regex" are provided for pattern matching and replacement.  The both takes three parameters; the first is the source string, the second is the matching pattern, and the third is the replacement string.  The third is optional and matching is just checked if it is omitted.  The following Lua script files are installed under "/usr/local/libexec" by default.</p>
+
+<ul>
+<li><code>promscrsample.lua</code> : sample implementation</li>
+<li><code>promscrcount.lua</code> : simple access counter</li>
+</ul>
+
+<p>The `<code>updatecmd</code>' specifies the path of a command file, which is called after every article is updated.  The script receives seven parameters.  The first is one of the following operation modes: "new", "update", "comment", and "remove".  The second is the ID number of the updated article.  The third is the name of the cache file of the new content.  The fourth is the name of the cache file of the old content.  The fifth is the timestamp in microseconds.  The sixth parameter is the name of the user of the update operation.  The seventh parameter is the absolute URL of the SGI script.  The configuration variables of the template file are given as environment variables whose names are led with the prefix "TP_" and transformed into upper cases.  The following shell script files are installed under "/usr/local/libexec" by default.</p>
+
+<ul>
+<li><code>promupdiff.sh</code> : record difference data to trace the site history by</li>
+<li><code>promupping.sh</code> : notify site update to public feed subscription services</li>
+</ul>
+
+<p>According to this tutorial, the password file is placed under the document root of the web server and it is revealed to the internet.  However, it is safer to hide the password file into another directory which is not published, though each password is ciphered.</p>
+
+<hr />
+
+<h2 id="license">License</h2>
+
+<p>Tokyo Promenade is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.</p>
+
+<p>Tokyo Promenade is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU General Public License along with this program.  If not, see `<code>http://www.gnu.org/licenses/</code>'.</p>
+
+<p>Tokyo Promenade was written by Mikio Hirabayashi.  You can contact the author by e-mail to `<code>hirarin@gmail.com</code>'.</p>
+
+<hr />
+
+</body>
+
+</html>
+
+<!-- END OF FILE -->

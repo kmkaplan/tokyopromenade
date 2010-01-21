@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480">
+<rect x="0" y="0" width="640" height="37" fill="red"/>
+<rect x="0" y="37" width="640" height="37" fill="white"/>
+<rect x="0" y="73" width="640" height="37" fill="red"/>
+<rect x="0" y="110" width="640" height="37" fill="white"/>
+<rect x="0" y="147" width="640" height="37" fill="red"/>
+<rect x="0" y="184" width="640" height="37" fill="white"/>
+<rect x="0" y="221" width="640" height="37" fill="red"/>
+<rect x="0" y="258" width="640" height="37" fill="white"/>
+<rect x="0" y="295" width="640" height="37" fill="red"/>
+<rect x="0" y="332" width="640" height="37" fill="white"/>
+<rect x="0" y="369" width="640" height="37" fill="red"/>
+<rect x="0" y="406" width="640" height="37" fill="white"/>
+<rect x="0" y="443" width="640" height="37" fill="red"/>
+<rect x="0" y="0" width="320" height="258" fill="blue"/>
+<polyline fill="white" points="160,55 190,105 260,105 206,140 240,190 160,160 90,190 114,140 50,105 130,105"/>
+<text x="200" y="470" fill="black" font-size="50pt">Hello, World!</text>
+</svg>

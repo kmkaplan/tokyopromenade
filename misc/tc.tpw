@@ -3,12 +3,12 @@
 #c 1978-02-11T18:05:30+09:00
 #m 2009-07-28T11:48:12+09:00
 #o mikio
-#t draft,test
+#t draft,test,tc
 
 * Tokyo Cabinet: a modern implementation of DBM
 
 #---- PRODUCT LOGO
-@ http://tokyocabinet.sourceforge.net/logo.png
+@ http://1978th.net/tokyocabinet/logo.png|||Logo of TC
 
 ===
 
@@ -33,20 +33,15 @@ Tokyo Cabinet is written in the C language, and provided as API of C, Perl, Ruby
 
 The following are documents of Tokyo Cabinet.  They are contained also in the source package.
 
-- [[Fundamental Specifications|http://tokyocabinet.sourceforge.net/spex-en.html]]
+- [[Fundamental Specifications|http://1978th.net/tokyocabinet/spex-en.html]]
 
-- [[Specifications of Perl API|http://tokyocabinet.sourceforge.net/perldoc/]]
-- [[Specifications of Ruby API|http://tokyocabinet.sourceforge.net/rubydoc/]]
-- [[Specifications of Java API|http://tokyocabinet.sourceforge.net/javadoc/]]
-- [[Specifications of Lua API|http://tokyocabinet.sourceforge.net/luadoc/]]
+- [[Specifications of Perl API|http://1978th.net/tokyocabinet/perldoc/]]
+- [[Specifications of Ruby API|http://1978th.net/tokyocabinet/rubydoc/]]
+- [[Specifications of Java API|http://1978th.net/tokyocabinet/javadoc/]]
+- [[Specifications of Lua API|http://1978th.net/tokyocabinet/luadoc/]]
 
-- [[Specifications of Remote Service (Tokyo Tyrant)|http://tokyocabinet.sourceforge.net/tyrantdoc/]]
--- [[Specifications of Perl Client|http://tokyocabinet.sourceforge.net/tyrantperldoc/]]
--- [[Specifications of Ruby Client|http://tokyocabinet.sourceforge.net/tyrantrubydoc/]]
-- [[Specifications of Inverted Index (Tokyo Dystopia)|http://tokyocabinet.sourceforge.net/dystopiadoc/]]
-
-- [[Presentation|http://tokyocabinet.sourceforge.net/tokyoproducts.pdf]]
-- [[Report of a Benchmark Test|http://tokyocabinet.sourceforge.net/benchmark.pdf]]
+- [[Presentation|http://1978th.net/tokyocabinet/tokyoproducts.pdf]]
+- [[Report of a Benchmark Test|http://1978th.net/tokyocabinet/benchmark.pdf]]
 
 ===
 
@@ -146,9 +141,7 @@ Tokyo Cabinet is released under the GNU Lesser General Public License version 2.
 
 ** Information
 
-Tokyo Cabinet was written and is maintained by [[Mikio Hirabayashi|http://qdbm.sourceforge.net/mikio/]].  You can contact the author by e-mail to `[[mailto:mikio@users.sourceforge.net]]'.
-
-The project page on SourceForge.net is `[[http://sourceforge.net/projects/tokyocabinet/]]'.  Update of this project is announced on Freshmeat.net at `[[http://freshmeat.net/projects/tokyocabinet/]]'.
+Tokyo Cabinet was written and is maintained by [[Mikio Hirabayashi|http://1978th.net/]].  You can contact the author by e-mail to `[[mailto:hirarin@gmail.com]]'.
 
 #% 2009-08-01T02:30:00+09:00|mikio|Tokyo Tyrant is a network interface of Tokyo Cabinet.
 #% 2009-08-01T02:31:00+09:00|mikio|Tokyo Dystopia is a full-text search system.

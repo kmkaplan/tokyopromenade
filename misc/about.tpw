@@ -1,0 +1,20 @@
+#! tp-about
+#c 2009-08-24T08:47:50+09:00
+#m 2009-08-24T10:23:11+09:00
+#o admin
+#t *,?,tp-about,lang-ja
+
+* About This Site
+
+This site is a demonstration site for Tokyo Promenade.
+
+Tokyo Promenade is a kind of content management system.  That is, Tokyo Promenade is a system in order to manage Web contents easily by providing total functions of browsing, authoring, editing Web contents on the Web interface itself.  Tokyo Promenade has the following features.
+
+- [*simple and logical user interface*] : aims at succinctness of LaTeX
+- [*high accessibility*] : complying with XHTML 1.0 and considering WCAG 1.0
+- [*hybrid data structure*] : available as BBS, blog, and Wiki
+- [*enough functionality*] : supports user management and file management
+- [*high performance*] : uses embedded database, Tokyo Cabinet
+- [*lightweight*] : implemented by C99 and without any dependency on other libraries
+
+Tokyo Promenade is available on platforms which have API conforming to C99 and POSIX. Tokyo Promenade is a free software licensed under the GNU General Public License.

@@ -1,6 +1,6 @@
 /*************************************************************************************************
  * The utility API of Tokyo Promenade
- *                                                      Copyright (C) 2008-2009 Mikio Hirabayashi
+ *                                                      Copyright (C) 2008-2010 Mikio Hirabayashi
  * This file is part of Tokyo Promenade.
  * This program is free software: you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation, either version
@@ -50,7 +50,7 @@ __COMMON_CLINKAGEBEGIN
  *************************************************************************************************/
 
 
-#define TPVERSION      "0.9.0"
+#define TPVERSION      "0.9.19"
 
 #define TUNEBNUM       131071            // bnum tuning parameter
 #define TUNEAPOW       6                 // apow tuning parameter
@@ -60,7 +60,6 @@ __COMMON_CLINKAGEBEGIN
 #define LINEBUFSIZ     1024              // size of a buffer for each line
 #define NUMBUFSIZ      64                // size of a buffer for number
 #define TINYBNUM       31                // bucket number of a tiny map
-#define HEADLVMAX      6                 // maximum level of header
 
 enum {                                   // enumeration for external data formats
   FMTWIKI,                               // Wiki
@@ -103,8 +102,9 @@ void wikitotextinline(TCXSTR *rbuf, const char *line);
    `rbuf' specifies the result buffer.
    `cols' specifies a map object containing columns.
    `buri' specifies the base URI.
-   `bhl' specifies the base header level. */
-void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl);
+   `bhl' specifies the base header level.
+   `duri' specifie the URI of the data directory. */
+void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl, const char *duri);
 
 
 /* Convert a Wiki string into an HTML string.
@@ -112,15 +112,18 @@ void wikidumphtml(TCXSTR *rbuf, TCMAP *cols, const char *buri, int bhl);
    `str' specifies the Wiki string.
    `id' specifies the ID string of the article.  If it is `NULL', the ID is not expressed.
    `buri' specifies the base URI.
-   `bhl' specifies the base header level. */
-void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri, int bhl);
+   `bhl' specifies the base header level.
+   `duri' specifie the URI of the data directory. */
+void wikitohtml(TCXSTR *rbuf, const char *str, const char *id, const char *buri, int bhl,
+                const char *duri);
 
 
 /* Add an inline Wiki string into HTML.
    `rbuf' specifies the result buffer.
    `line' specifies the inline Wiki string.
-   `buri' specifies the base URI. */
-void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri);
+   `buri' specifies the base URI.
+   `duri' specifie the URI of the data directory. */
+void wikitohtmlinline(TCXSTR *rbuf, const char *line, const char *buri, const char *duri);
 
 
 /* Simplify a date string.
@@ -131,7 +134,7 @@ char *datestrsimple(char *str);
 
 /* Get the MIME type of a file.
    `name' specifies the name of the file.
-   The return value is the MIME type of the file. */
+   The return value is the MIME type of the file or `NULL' if the type is not detected. */
 const char *mimetype(const char *name);
 
 
@@ -139,6 +142,14 @@ const char *mimetype(const char *name);
    `type' specifies the MIME type.
    The return value is the name of the MIME type. */
 const char *mimetypename(const char *type);
+
+
+/* Encode a string with file path encoding.
+   `str' specifies the string.
+   The return value is the result string.
+   Because the region of the return value is allocated with the `malloc' call, it should be
+   released with the `free' call if when is no longer in use. */
+char *pathencode(const char *str);
 
 
 /* Store an article into the database.

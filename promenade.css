@@ -1,13 +1,13 @@
 /* common style */
 html {
-  margin: 0px;
-  padding: 0px;
+  margin: 0ex;
+  padding: 0ex;
   background: #ffffff none;
   color: #111111;
 }
 body {
-  margin: 0px;
-  padding: 0px;
+  margin: 0ex;
+  padding: 0ex;
   text-align: center;
 }
 a {
@@ -17,71 +17,88 @@ a {
 a:hover {
   text-decoration: underline;
 }
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+h1 a,h2 a,h3 a,h4 a,h5 a,h6 a {
   color: #000000;
 }
 hr {
   clear: both;
   height: 1px;
-  margin: 10px 0px;
-  padding: 0px 0px;
+  margin: 1ex 0ex;
+  padding: 0ex;
   border: none;
   background: #999999 none;
-  color: #999999;
+  color: #888888;
 }
 form {
-  margin: 0px;
-  padding: 0px;
+  margin: 0ex;
+  padding: 0ex;
 }
 h1,h2,h3,h4,h5,h6,p,ul,ol,dl {
   line-height: 150%;
 }
-div.view_main {
+div#frame {
   display: inline-block;
-  width: 700px;
+  max-width: 105ex;
+  padding: 1ex 0ex;
+  vertical-align: top;
+}
+div#main {
+  width: 80ex;
+  margin: 0ex;
+  padding: 1ex;
+  float: left;
   text-align: left;
 }
-h1.title {
-  margin: 0ex;
+div.logo {
+  margin: 2ex 0ex 1ex 0ex;
 }
-p.info {
+h1.title {
+  display: inline;
+  font-size: 160%;
+}
+div.subtitle {
+  display: inline;
+  margin-left: 1ex;
+  color: #333333;
+  font-size: 95%;
+}
+div.subtitle:before {
+  content: "- ";
+  color: #555555;
+}
+div.subtitle:after {
+  content: " -";
+  color: #555555;
+}
+p.error,p.info {
   margin: 1ex 1ex;
   color: #333333;
 }
 
 
-/* navigation bar */
+/* top navigation bar */
 div#topnavi {
-  margin: 2px 0px;
-  padding: 4px 0px;
+  margin: -1ex 0ex 0ex 0ex;
+  padding: 0.5ex 0ex;
   text-align: right;
   font-size: 90%;
 }
 div#topnavi a {
-  margin: 2px;
-}
-div#botnavi {
-  margin: 0px 0px;
-  padding: 0px 0px;
-  text-align: right;
-  font-size: 90%;
-}
-div#botnavi a {
-  margin: 2px;
+  margin: 0.2ex;
 }
 
 
 /* article view */
 div.article {
-  min-height: 300px;
-  padding: 8px 2px 20px 2px;
+  min-height: 24ex;
+  padding: 1.5ex 0.2ex 1.5ex 0.2ex;
 }
 div.article .ah0 {
   margin-bottom: 0.8ex;
-  padding: 0.3ex 0.5ex;
+  padding: 0.3ex 0.8ex;
   border-left: solid 0.8ex #bbbbbb;
   border-bottom: solid 1px #cccccc;
-  font-size: 150%;
+  font-size: 132%;
 }
 div.article div.attr {
   margin: 0ex 1ex;
@@ -92,30 +109,30 @@ div.article div.attr span {
   color: #111111;
 }
 div.article .topic {
-  margin: 1.5ex 0ex 1.0ex 0ex;
+  margin: 1.6ex 0ex 0.8ex 0ex;
 }
 div.article .ah1 {
-  font-size: 120%;
+  font-size: 115%;
 }
 div.article .ah2 {
-  font-size: 110%;
-  margin-left: 0.2ex;
+  font-size: 100%;
+  margin-left: 0.3ex;
 }
 div.article .ah3 {
-  font-size: 105%;
+  font-size: 92%;
   margin-left: 0.4ex;
 }
 div.article .ah4 {
-  font-size: 95%;
+  font-size: 87%;
   margin-left: 0.5ex;
 }
 div.article .ah5 {
-  font-size: 90%;
-  margin-left: 0.5ex;
+  font-size: 83%;
+  margin-left: 0.6ex;
 }
 div.article .ah6 {
-  font-size: 85%;
-  margin-left: 0.5ex;
+  font-size: 79%;
+  margin-left: 0.7ex;
 }
 div.article p {
   margin: 1.1ex 0.5ex;
@@ -144,8 +161,8 @@ div.article table {
   border-collapse: collapse;
 }
 div.article table th,div.article table td {
-  border: solid 1pt #888888;
-  padding: 1px 5px;
+  border: solid 1px #888888;
+  padding: 0.2ex 0.5ex;
   font-size: 95%;
 }
 div.article blockquote {
@@ -163,20 +180,111 @@ div.article div.image {
   clear: both;
 }
 div.article div.image_normal {
-  max-width: 95%;
+  max-width: 92%;
   margin: 1.1ex 3ex;
 }
 div.article div.image_left {
-  max-width: 55%;
+  width: auto;
   float: left;
   margin: 1.2ex 1.8ex 1ex 0.5ex;
 }
+div.article div.image_left1 {
+  max-width: 69%;
+}
+div.article div.image_left2 {
+  max-width: 59%;
+}
+div.article div.image_left3 {
+  max-width: 49%;
+}
+div.article div.image_left4 {
+  max-width: 39%;
+}
+div.article div.image_left5 {
+  max-width: 29%;
+}
+div.article div.image_left6 {
+  max-width: 19%;
+}
 div.article div.image_right {
-  max-width: 55%;
+  width: auto;
   float: right;
   margin: 1.2ex 0.5ex 1ex 1.5ex;
 }
-div.article div.image img {
+div.article div.image_right1 {
+  max-width: 69%;
+}
+div.article div.image_right2 {
+  max-width: 59%;
+}
+div.article div.image_right3 {
+  max-width: 49%;
+}
+div.article div.image_right4 {
+  max-width: 39%;
+}
+div.article div.image_right5 {
+  max-width: 29%;
+}
+div.article div.image_right6 {
+  max-width: 19%;
+}
+div.article div.image_center {
+  max-width: 100%;
+}
+div.article div.image_center1 {
+  margin: 1.1ex 0ex;
+}
+div.article div.image_center2 {
+  margin: 1.1ex 6ex;
+}
+div.article div.image_center3 {
+  margin: 1.1ex 12ex;
+}
+div.article div.image_center4 {
+  margin: 1.1ex 18ex;
+}
+div.article div.image_center5 {
+  margin: 1.1ex 24ex;
+}
+div.article div.image_center6 {
+  margin: 1.1ex 30ex;
+}
+div.article div.image_table {
+  width: auto;
+  float: left;
+  margin: 1.1ex 0ex;
+}
+div.article div.image_table3 {
+  width: 43%;
+  padding-left: 4%;
+}
+div.article div.image_table4 {
+  width: 28.5%;
+  padding-left: 3%;
+}
+div.article div.image_table5 {
+  width: 21%;
+  padding-left: 2.8%;
+}
+div.article div.image_table5 {
+  width: 21%;
+  padding-left: 2.7%;
+}
+div.article div.image_table6 {
+  width: 17%;
+  padding-left: 2.2%;
+}
+div.image_table+* {
+  clear: both;
+}
+div.image_table+div.image_table {
+  clear: none;
+}
+div.article div.image_sized {
+  max-width: none;
+}
+div.article div.image img,div.article div.image object {
   max-width: 100%;
   margin: 0ex;
   padding: 0ex;
@@ -185,10 +293,42 @@ div.article div.image img {
 div.article div.rule {
   clear: both;
   height: 1px;
-  margin: 3ex 0.2ex 2ex 0.2ex;
-  padding: 0px 0px;
+  margin: 3ex 5ex 2ex 5ex;
+  padding: 0ex;
   border: none;
   background: #cccccc none;
+}
+div.article div.rule_s1 {
+  margin: 0ex;
+  background: none;
+}
+div.article div.rule_s2 {
+  margin: 2ex;
+  background: none;
+}
+div.article div.rule_s3 {
+  margin: 4ex;
+  background: none;
+}
+div.article div.rule_s4 {
+  margin: 8ex;
+  background: none;
+}
+div.article div.rule_s5 {
+  margin: 16ex;
+  background: none;
+}
+div.article div.rule_s6 {
+  margin: 32ex;
+  background: none;
+}
+div.article div.rule_s7 {
+  margin: 64ex;
+  background: none;
+}
+div.article div.rule_s8 {
+  margin: 128ex;
+  background: none;
 }
 div.article div.rule span {
   display: none;
@@ -205,8 +345,9 @@ div.article div.comnum a {
 }
 div.article div.comments {
   clear: both;
-  margin: 6ex 1.2ex 1ex 1.2ex;
-  padding: 0.3ex 1.5ex;
+  margin: 4ex 0.4ex 1ex 0.4ex;
+  padding: 0.3ex 1.0ex 0.3ex 5.0ex;
+  text-indent: -4.0ex;
   border: 1px dotted #aaaabb;
   color: #222222;
   font-size: 90%;
@@ -215,6 +356,10 @@ div.comments div.meta {
   text-align: right;
   color: #666666;
 }
+div.comment span.owner {
+  color: #111111;
+  font-style: italic;
+}
 div.comment span.date {
   color: #666666;
   font-size: 90%;
@@ -222,19 +367,31 @@ div.comment span.date {
 div.commentformline {
   margin: 1ex 0ex;
 }
+div.commentformline span.user {
+  color: #111111;
+  font-style: italic;
+}
+dl.riddleformlist {
+  margin: 1.5ex 0.5ex 1ex 2ex;
+  color: #666666;
+  line-height: 100%;
+}
+dl.riddleformlist span.question {
+  font-style: italic;
+}
 
 
 /* front view */
 div.view_front div.article h1.ah0 {
-  margin: 0ex 1ex;
+  margin: -1ex 1ex 0ex 1ex;
   padding: 0ex;
-  float: right;
+  text-align: right;
   border: none;
-  font-size: 100%;
+  font-size: 95%;
   font-style: italic;
 }
 div.view_front div.article h1.ah0 a {
-  color: #888888;
+  color: #555555;
 }
 
 
@@ -246,14 +403,46 @@ form.searchform {
   color: #333333;
   font-size: 90%;
 }
+div.listcolumn {
+  width: 49%;
+  float: left;
+  color: #333333;
+}
+div.listcolumn h2 {
+  font-size: 100%;
+  margin: 0ex 0ex 0.5ex 0ex;
+}
+div.listcolumn ul {
+  list-style-position: inside;
+  margin: 0.5ex 0ex 2ex 0ex;
+  padding: 0ex 0.3ex;
+  line-height: 140%;
+  font-size: 90%;
+}
+div.listcolumn ul li span.months {
+  font-size: 90%;
+}
+div.listcolumn ul li span.months span.void {
+  color: #888888;
+}
 dl#searchresult {
   margin: 0ex 1ex;
+  line-height: 120%;
 }
 dl#searchresult dt {
-  margin-top: 1.5ex;
+  width: 80%;
+  margin-top: 2.5ex;
+  padding: 0ex 1ex;
+  border-left: solid 1ex #bbbbbb;
+  border-bottom: 1px solid #cccccc;
 }
 dl#searchresult dd {
+  margin-left: 3ex;
   font-size: 90%;
+}
+dl#searchresult dd.attr {
+  font-size: 85%;
+  color: #333333;
 }
 
 
@@ -261,15 +450,34 @@ dl#searchresult dd {
 form.editform {
   margin: 1ex 1ex;
 }
+form.editform textarea {
+  max-width: 100%;
+}
 
 
 /* users view */
+
+
+form.userridform {
+  margin: 1ex 1ex;
+}
+form.userridform dl {
+  padding: 1ex;
+  border: dashed 1px #888888;
+}
+form.userridform dl span.note {
+  color: #555555;
+  font-size: 90%;
+}
+
+
+
 form.usernewform {
   margin: 1ex 1ex;
 }
 form.usernewform dl {
   padding: 1ex;
-  border: dashed 1pt #888888;
+  border: dashed 1px #888888;
 }
 form.usernewform dl span.note {
   color: #555555;
@@ -280,8 +488,8 @@ table#userlist {
   border-collapse: collapse;
 }
 table#userlist th,table#userlist td {
-  border: solid 1pt #888888;
-  padding: 1px 5px;
+  border: solid 1px #888888;
+  padding: 0.2ex 0.5ex;
   font-size: 95%;
 }
 table#userlist td.misc {
@@ -295,7 +503,7 @@ form.filenewform {
 }
 form.filenewform dl {
   padding: 1ex;
-  border: dashed 1pt #888888;
+  border: dashed 1px #888888;
 }
 form.filenewform dl span.note {
   color: #555555;
@@ -313,8 +521,8 @@ table#filelist {
   border-collapse: collapse;
 }
 table#filelist th,table#filelist td {
-  border: solid 1pt #888888;
-  padding: 1px 5px;
+  border: solid 1px #888888;
+  padding: 0.2ex 0.5ex;
   font-size: 90%;
 }
 table#filelist td.name a.filename {
@@ -325,17 +533,19 @@ table#filelist td.name a.label {
   font-size: 95%;
 }
 table#filelist td.name div.thumnail {
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 10ex;
+  max-height: 10ex;
   overflow: hidden;
-  margin: 3px 0px 3px 60px;
+  margin: -1ex 0ex 0.2ex 12ex;
 }
 table#filelist td.name div.thumnail img {
   max-width: 100%;
-  max-height: 100%;
 }
 table#filelist td.misc {
   font-size: 80%;
+}
+table#filelist td.replace,table#filelist td.delete {
+  text-align: right;
 }
 table#filelist td.misc input.fileinput {
   font-size: 90%;
@@ -345,14 +555,98 @@ table#filelist td.misc input.submit {
 }
 
 
-/* footer */
-div#footer {
+/* bottom navigation bar */
+div#botnavi {
+  clear: both;
+  margin: 0ex;
+  padding: 0ex;
   text-align: right;
-  margin: 10px 0px;
-  padding: 4px 3px;
-  color: #333333;
-  font-size: 80%;
+  font-size: 90%;
 }
-div#footer a {
-  color: #333333;
+div#botnavi a {
+  margin: 0.2ex;
+}
+
+
+/* side bar */
+div.frame_multi div#topnavi {
+  display: none;
+}
+div#sidebar {
+  width: 24ex;
+  margin: 0ex;
+  padding: 1ex;
+  float: left;
+  text-align: left;
+  font-size: 150%;
+  border-left: dotted 1px #cccccc;
+  font-size: 80%;
+  color: #555555;
+}
+div#sidebar p {
+  margin: 0ex 0.2ex;
+}
+div#sidebar span.user {
+  color: #111111;
+  font-style: italic;
+}
+div#sidebar a {
+  color: #555555;
+}
+div#sidebar h2 {
+  margin: 2.0ex 0ex 0.5ex 0ex;
+  font-size: 100%;
+  color: #444444;
+}
+div#sidebar ul {
+  margin: 0ex;
+  padding: 0ex;
+  line-height: 120%;
+  font-size: 100%;
+}
+div#sidebar li {
+  margin: 0ex 0ex 0.8ex 0.4ex;
+  padding: 0ex;
+  list-style-type: none;
+}
+
+
+/* environment-dependent hacks */
+body.env_iphone div#frame,body.env_android div#frame {
+  width: 95%;
+}
+body.env_iphone div#main,body.env_android div#main {
+  width: 100%;
+  font-size: 22pt;
+}
+body.env_iphone div#topnavi,body.env_android div#topnavi {
+  display: block;
+}
+body.env_iphone div#sidebar,body.env_android div#sidebar {
+  display: none;
+}
+body.env_iphone div.listcolumn {
+  font-size: 85%;
+}
+
+
+/* printing image hacks */
+@media print {
+  div#frame {
+    display: block;
+    width: 100%;
+  }
+  div#main {
+    display: block;
+    width: 100%;
+  }
+  div#topnavi,div#botnavi,div#sidebar {
+    display: none;
+  }
+  hr {
+    display: none;
+  }
+  div.article .ah0 {
+    margin-top: 4ex;
+  }
 }

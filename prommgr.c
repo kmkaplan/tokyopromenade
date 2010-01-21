@@ -1,6 +1,6 @@
 /*************************************************************************************************
  * The command line utility of Tokyo Promenade
- *                                                      Copyright (C) 2008-2009 Mikio Hirabayashi
+ *                                                      Copyright (C) 2008-2010 Mikio Hirabayashi
  * This file is part of Tokyo Promenade.
  * This program is free software: you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation, either version
@@ -27,12 +27,19 @@ static void eprintf(const char *format, ...);
 static void printdberr(TCTDB *tdb);
 static int runcreate(int argc, char **argv);
 static int runimport(int argc, char **argv);
+static int runexport(int argc, char **argv);
+static int runupdate(int argc, char **argv);
+static int runremove(int argc, char **argv);
 static int runconvert(int argc, char **argv);
 static int runpasswd(int argc, char **argv);
 static int runversion(int argc, char **argv);
 static int proccreate(const char *dbpath, int scale, bool fts);
 static int procimport(const char *dbpath, TCLIST *files, TCLIST *sufs);
-static int procconvert(const char *ibuf, int isiz, int fmt, const char *buri, bool page);
+static int procexport(const char *dbpath, int64_t id, const char *dirpath);
+static int procupdate(const char *dbpath, int64_t id, const char *wiki);
+static int procremove(const char *dbpath, int64_t id);
+static int procconvert(const char *ibuf, int isiz, int fmt,
+                       const char *buri, const char *duri, bool page);
 static int procpasswd(const char *name, const char *pass, const char *salt, const char *info);
 static int procversion(void);
 
@@ -46,6 +53,12 @@ int main(int argc, char **argv){
     rv = runcreate(argc, argv);
   } else if(!strcmp(argv[1], "import")){
     rv = runimport(argc, argv);
+  } else if(!strcmp(argv[1], "export")){
+    rv = runexport(argc, argv);
+  } else if(!strcmp(argv[1], "update")){
+    rv = runupdate(argc, argv);
+  } else if(!strcmp(argv[1], "remove")){
+    rv = runremove(argc, argv);
   } else if(!strcmp(argv[1], "convert")){
     rv = runconvert(argc, argv);
   } else if(!strcmp(argv[1], "passwd")){
@@ -66,8 +79,11 @@ static void usage(void){
   fprintf(stderr, "usage:\n");
   fprintf(stderr, "  %s create [-fts] dbpath [scale]\n", g_progname);
   fprintf(stderr, "  %s import [-suf str] dbpath file ... \n", g_progname);
-  fprintf(stderr, "  %s convert [-fw|-ft] [-buri str] [-page] [file]\n", g_progname);
-  fprintf(stderr, "  %s passwd [-salt str] name pass\n", g_progname);
+  fprintf(stderr, "  %s export [-dir str] dbpath [id]\n", g_progname);
+  fprintf(stderr, "  %s update id [file]\n", g_progname);
+  fprintf(stderr, "  %s remove dbpath id\n", g_progname);
+  fprintf(stderr, "  %s convert [-fw|-ft] [-buri str] [-duri] [-page] [file]\n", g_progname);
+  fprintf(stderr, "  %s passwd [-salt str] [-info str] name pass\n", g_progname);
   fprintf(stderr, "  %s version\n", g_progname);
   fprintf(stderr, "\n");
   exit(1);
@@ -146,11 +162,101 @@ static int runimport(int argc, char **argv){
 }
 
 
+/* parse arguments of export command */
+static int runexport(int argc, char **argv){
+  char *dbpath = NULL;
+  char *idstr = NULL;
+  char *dirpath = NULL;
+  for(int i = 2; i < argc; i++){
+    if(!dbpath && argv[i][0] == '-'){
+      if(!strcmp(argv[i], "-dir")){
+        if(++i >= argc) usage();
+        dirpath = argv[i];
+      } else {
+        usage();
+      }
+    } else if(!dbpath){
+      dbpath = argv[i];
+    } else if(!idstr){
+      idstr = argv[i];
+    } else {
+      usage();
+    }
+  }
+  if(!dbpath) usage();
+  int64_t id = idstr ? tcatoi(idstr) : 0;
+  int rv = procexport(dbpath, id, dirpath);
+  return rv;
+}
+
+
+/* parse arguments of update command */
+static int runupdate(int argc, char **argv){
+  char *dbpath = NULL;
+  char *idstr = NULL;
+  char *file = NULL;
+  for(int i = 2; i < argc; i++){
+    if(!dbpath && argv[i][0] == '-'){
+      usage();
+    } else if(!dbpath){
+      dbpath = argv[i];
+    } else if(!idstr){
+      idstr = argv[i];
+    } else if(!file){
+      file = argv[i];
+    } else {
+      usage();
+    }
+  }
+  if(!dbpath || !idstr) usage();
+  int64_t id = tcatoi(idstr);
+  char *ibuf;
+  int isiz;
+  if(file && file[0] == '@'){
+    isiz = strlen(file) - 1;
+    ibuf = tcmemdup(file + 1, isiz);
+  } else {
+    ibuf = tcreadfile(file, -1, &isiz);
+  }
+  if(!ibuf){
+    eprintf("%s: cannot open", file ? file : "(stdin)");
+    return 1;
+  }
+  int rv = procupdate(dbpath, id, ibuf);
+  tcfree(ibuf);
+  return rv;
+}
+
+
+/* parse arguments of remove command */
+static int runremove(int argc, char **argv){
+  char *dbpath = NULL;
+  char *idstr = NULL;
+  for(int i = 2; i < argc; i++){
+    if(!dbpath && argv[i][0] == '-'){
+      usage();
+    } else if(!dbpath){
+      dbpath = argv[i];
+    } else if(!idstr){
+      idstr = argv[i];
+    } else {
+      usage();
+    }
+  }
+  if(!dbpath || !idstr) usage();
+  int64_t id = tcatoi(idstr);
+  if(id < 1) usage();
+  int rv = procremove(dbpath, id);
+  return rv;
+}
+
+
 /* parse arguments of convert command */
 static int runconvert(int argc, char **argv){
   char *path = NULL;
   int fmt = FMTHTML;
   char *buri = "promenade.cgi";
+  char *duri = NULL;
   bool page = false;
   for(int i = 2; i < argc; i++){
     if(!path && argv[i][0] == '-'){
@@ -161,6 +267,9 @@ static int runconvert(int argc, char **argv){
       } else if(!strcmp(argv[i], "-buri")){
         if(++i >= argc) usage();
         buri = argv[i];
+      } else if(!strcmp(argv[i], "-duri")){
+        if(++i >= argc) usage();
+        duri = argv[i];
       } else if(!strcmp(argv[i], "-page")){
         page = true;
       } else {
@@ -184,7 +293,7 @@ static int runconvert(int argc, char **argv){
     eprintf("%s: cannot open", path ? path : "(stdin)");
     return 1;
   }
-  int rv = procconvert(ibuf, isiz, fmt, buri, page);
+  int rv = procconvert(ibuf, isiz, fmt, buri, duri, page);
   if(path && path[0] == '@') printf("\n");
   tcfree(ibuf);
   return rv;
@@ -256,6 +365,10 @@ static int proccreate(const char *dbpath, int scale, bool fts){
     printdberr(tdb);
     err = true;
   }
+  if(!tctdbsetindex(tdb, "xdate", TDBITDECIMAL | TDBITKEEP) && tctdbecode(tdb) != TCEKEEP){
+    printdberr(tdb);
+    err = true;
+  }
   if(fts && !tctdbsetindex(tdb, "text", TDBITQGRAM | TDBITKEEP) && tctdbecode(tdb) != TCEKEEP){
     printdberr(tdb);
     err = true;
@@ -295,6 +408,10 @@ static int procimport(const char *dbpath, TCLIST *files, TCLIST *sufs){
     printdberr(tdb);
     err = true;
   }
+  if(!tctdbsetindex(tdb, "xdate", TDBITDECIMAL | TDBITKEEP) && tctdbecode(tdb) != TCEKEEP){
+    printdberr(tdb);
+    err = true;
+  }
   tclistinvert(files);
   char *fpath;
   while((fpath = tclistpop2(files)) != NULL){
@@ -327,7 +444,7 @@ static int procimport(const char *dbpath, TCLIST *files, TCLIST *sufs){
           int64_t id = tcatoi(tcmapget4(cols, "id", ""));
           if(dbputart(tdb, id, cols)){
             id = tcatoi(tcmapget4(cols, "id", ""));
-            printf("%s: stored: id=%lld name=%s\n", fpath, (long long)id, name);
+            printf("%s: imported: id=%lld name=%s\n", fpath, (long long)id, name);
           } else {
             printdberr(tdb);
             err = true;
@@ -350,8 +467,123 @@ static int procimport(const char *dbpath, TCLIST *files, TCLIST *sufs){
 }
 
 
+/* perform export command */
+static int procexport(const char *dbpath, int64_t id, const char *dirpath){
+  TCTDB *tdb = tctdbnew();
+  if(!tctdbopen(tdb, dbpath, TDBOREADER)){
+    printdberr(tdb);
+    tctdbdel(tdb);
+    return 1;
+  }
+  bool err = false;
+  if(id > 0){
+    char pkbuf[NUMBUFSIZ];
+    int pksiz = sprintf(pkbuf, "%lld", (long long)id);
+    TCMAP *cols = tctdbget(tdb, pkbuf, pksiz);
+    if(cols){
+      TCXSTR *rbuf = tcxstrnew3(IOBUFSIZ);
+      wikidump(rbuf, cols);
+      fwrite(tcxstrptr(rbuf), 1, tcxstrsize(rbuf), stdout);
+      tcxstrdel(rbuf);
+      tcmapdel(cols);
+    } else {
+      printdberr(tdb);
+      err = true;
+    }
+  } else {
+    if(!dirpath) dirpath = ".";
+    if(!tctdbiterinit(tdb)){
+      printdberr(tdb);
+      err = true;
+    }
+    char *pkbuf;
+    int pksiz;
+    while((pkbuf = tctdbiternext(tdb, &pksiz)) != NULL){
+      TCMAP *cols = tctdbget(tdb, pkbuf, pksiz);
+      if(cols){
+        char *name = tcstrdup(tcmapget4(cols, "name", ""));
+        tcstrcututf(name, 32);
+        char *enc = pathencode(name);
+        char *path = tcsprintf("%s/%s-%s.tpw", dirpath, pkbuf, enc);
+        TCXSTR *rbuf = tcxstrnew3(IOBUFSIZ);
+        wikidump(rbuf, cols);
+        if(tcwritefile(path, tcxstrptr(rbuf), tcxstrsize(rbuf))){
+          printf("%s: exported: id=%s name=%s\n", path, pkbuf, name);
+        } else {
+          printf("%s: writing failed\n", path);
+          err = true;
+        }
+        tcxstrdel(rbuf);
+        tcfree(path);
+        tcfree(enc);
+        tcfree(name);
+        tcmapdel(cols);
+      } else {
+        printdberr(tdb);
+        err = true;
+      }
+      tcfree(pkbuf);
+    }
+  }
+  if(!tctdbclose(tdb)){
+    printdberr(tdb);
+    err = true;
+  }
+  tctdbdel(tdb);
+  return err ? 1 : 0;
+}
+
+
+/* perform update command */
+static int procupdate(const char *dbpath, int64_t id, const char *wiki){
+  TCTDB *tdb = tctdbnew();
+  if(!tctdbopen(tdb, dbpath, TDBOWRITER)){
+    printdberr(tdb);
+    tctdbdel(tdb);
+    return 1;
+  }
+  bool err = false;
+  TCMAP *cols = tcmapnew2(TINYBNUM);
+  wikiload(cols, wiki);
+  if(!dbputart(tdb, id, cols)){
+    printdberr(tdb);
+    err = true;
+  }
+  tcmapdel(cols);
+  if(!tctdbclose(tdb)){
+    printdberr(tdb);
+    err = true;
+  }
+  tctdbdel(tdb);
+  return err ? 1 : 0;
+}
+
+
+/* perform remove command */
+static int procremove(const char *dbpath, int64_t id){
+  TCTDB *tdb = tctdbnew();
+  if(!tctdbopen(tdb, dbpath, TDBOWRITER)){
+    printdberr(tdb);
+    tctdbdel(tdb);
+    return 1;
+  }
+  bool err = false;
+  if(!dboutart(tdb, id)){
+    printdberr(tdb);
+    err = true;
+  }
+  if(!tctdbclose(tdb)){
+    printdberr(tdb);
+    err = true;
+  }
+  tctdbdel(tdb);
+  return err ? 1 : 0;
+}
+
+
 /* perform convert command */
-static int procconvert(const char *ibuf, int isiz, int fmt, const char *buri, bool page){
+static int procconvert(const char *ibuf, int isiz, int fmt,
+                       const char *buri, const char *duri, bool page){
   TCMAP *cols = tcmapnew2(TINYBNUM);
   wikiload(cols, ibuf);
   if(fmt == FMTWIKI){
@@ -385,7 +617,7 @@ static int procconvert(const char *ibuf, int isiz, int fmt, const char *buri, bo
       tcxstrprintf(rbuf, "</head>\n");
       tcxstrprintf(rbuf, "<body>\n");
     }
-    wikidumphtml(rbuf, cols, buri, 0);
+    wikidumphtml(rbuf, cols, buri, 0, duri);
     if(page){
       tcxstrprintf(rbuf, "</body>\n");
       tcxstrprintf(rbuf, "</html>\n");
@@ -414,7 +646,7 @@ static int procpasswd(const char *name, const char *pass, const char *salt, cons
 /* perform version command */
 static int procversion(void){
   printf("Tokyo Promenade version %s\n", TPVERSION);
-  printf("Copyright (C) 2008-2009 Mikio Hirabayashi\n");
+  printf("Copyright (C) 2008-2010 Mikio Hirabayashi\n");
   return 0;
 }
 

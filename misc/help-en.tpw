@@ -1,16 +1,189 @@
-#! Help of Tokyo Promenade
-#c 2009-08-02T15:28:01+09:00
+#! tp-help-en
+#c 2009-08-21T00:42:02+09:00
 #o admin
-#t *,help
+#t *,?
 
-Welcome to Tokyo Promenade, a lightweight Wiki system.  This article describes how to use Tokyo Promenade.
+* Usage of Tokyo Promenade
 
-* What is Wiki?
+Welcome to Tokyo Promenade, a lightweight content management system.  This article describes how to use Tokyo Promenade easily.
 
-Tokyo Promenade is a kind of Wiki systems.  Wiki is a mechanism for every user to write/edit Web contents easily.  Though usual BBS systems also implement functions to write new articles, to show articles, and to add comments, the purpose of Wiki is different.  While the main purpose of BBS is to provide new information by listing newcome articles in the timeline, the main purpose of Wiki is to organize information by making named documents related with hyper links.
+===
 
-{{{{
+* What is Tokyo Promenade
+
+Tokyo Promenade (TP) is a kind of [[content management system|wpen:Content_management_system]].  That is, TP is a system in order to manage Web contents easily by providing total functions of browsing, authoring, editing Web contents on the Web interface itself.  TP provides user management function and file upload function also.
+
+===
+
+* To Read Articles
+
+This article you are reading now is just an article on TP.  You can browse related articles by following hyper links in each article, as with usual Web sites.  There are navigation links on [[the top page|param:]] and they are useful to reach your favorite articles.
+
+When you follow a link added to the name (title) of each article, a page of single view of the article is shown.  The link (so-called parmalink) is useful to bookmark the article and to tell the article to friends.
+
+** To Search Articles
+
+When you follow the "[#[[Search|param:act=search]]#]" link in the navigation bar on the head of each page, the search page for articles is shown.  When you input search words and press the "[#search#]" button, articles including the input words in the name or the body are shown.  You can change the object column and the sorting order.
+
+If you press the "[#search#]" button without inputting any word, all article corresponds and are shown in the specified order.  You can check newcome articles and recent modification due to the behavior.
+
+===
+
+* Login and Logout
+
+To update the site contents, user authentication by login operation is needed.  The "[#[[Login|param:act=login]]#]" in the navigation bar guides you to the login page to input user information.  Input the user name and the password there and press the "[#submit#]" button.  After login, links for functions permitted to the registered users are shown in the navigation bar.  When a series of updating tasks have been finished, logout with the "[#logout#]" link.
+
+Users who don't have any user account cannot login.  Ask the administrator to create or modify user accounts.
+
+===
+
+* To write articles
+
+The link "[#[[Post|param:act=edit]]#]" in the navigation bar guides you to the editing page to write a new article.  Input the name and the body text in the input form and press the "[#submit#]" button.  Then, a new article is created with the input data.  To edit an existing page, follow the "[#Edit#]" link in the navigation bar.
+
+The name attribute is required for each article.  As the first line of the input form begins with "[##!#]", input the name there.  You can add the following attributes to each article.  Attributes except for the name is optional.
+
+- [*[##!#]*] : the name of the article.
+- [*[##c#]*] : the creation date of the article in the W3CDTF format.
+- [*[##m#]*] : the modification date of the article in the W3CDTF format.
+- [*[##o#]*] : the owner of the article.
+- [*[##t#]*] : list of tags of the article, in comma separated values.
+
+If the check box of "[#modify timestamp#]" is checked, the modification date is modified to the current time automatically.
+
+The administrator only can add the "[#*#]" tag to the tag list.  In that case, the article becomes a "frozen article".  Frozen articles can not be edited by normal users.  This article is also a frozen article.  You can add the "[#?#]" tag to the tag list.  In that case, the article becomes a "hidden article".  Hidden articles are not shown in the timeline view and the search view.  This article is also a hidden article.
+
+** Wiki Notation
+
+*** Block Level Structure
+
+You can describe the body text below the attribute defining section.  You can write arbitrary strings and then each line is shown as a paragraph.  Empty lines are ignored.  Moreover, you can set the following meta characters at the beginning of each line and they express the logical structure.
+
+- [*[#*#]*] : a topic.  The level is specified by the number of "[#*#]".
+- [*[#-#]*] : a list without ordinal numbers.  The level is specified by the number of "[#-#]".
+- [*[#+#]*] : a list with ordinal numbers.  The level is specified by the number of "[#+#]".
+- [*[#|#]*] : a table.  The separator of columns is "[#|#]".  "[#,#]" can substitute for "[#|#]".
+- [*[#{{{#]*] : beginning of a pre-formatted text.  The section is until the next "[#}}}#]" line.
+- [*[#@#]*] : an image.  The URL of the inserted image trails.  The width, the height, and the alternative text can be specified by separating with "[#|#]".
+- [*[#===#]*] : a horizontal rule.  If some of "[###]" trails, vertical space is inserted according to the number.
+- [*[###]*] : a hidden comment.  It is not shown in the page.
+
+When image insertion, "[*[#@<#]*]" means the left adjust and "[*[#@>#]*]" means the right adjust.  They are floating and the body text wraps around the image.  "[*[#@+#]*]" means the center adjust without wrap-around.  "[*[#@|#]*]" means the multiple column setting.  Appending more "[#<#]", "[#>#]", "[#+#]", "[#|#]" indicates adjustment of the ratio of the image width.  If you use "[*[#@@#]*]", a link to the image is added.  As well, the horizontal rule is useful to clear the image floating.
+
+If you use "[*[#@!#]*]" instead of "[#@#]", you can insert not only image data but also object data of arbitrary type.  The data type is detected by the suffix (extension) of the URL.  You can specify the width and the height by separating with "[#|#]" as with image, and specify parameters also by separating "[#|#]".
+
+*** Inline Level Structure
+
+You can use markups with brackets in the string of each block and they can add hyper links and can qualify the logical meaning.
+
+- [*[#[=[[=]#]*] ... [*[#[=]]=]#]*] : a hyper link, referring to the article whose name is the enclosed string.
+-- [*[#[=[[=]#]*] ... [*[#[=|=]#]*] ... [*[#[=]]=]#]*] : separating the anchor string and the referent URL by "[#|#]".
+- [*[#[=[*=]#]*] ... [*[#*[=]=]#]*] : emphasis, corresponding to the "string" element of HTML.
+- [*[#[=["=]#]*] ... [*[#[="]=]#]*] : citation, corresponding to the "cite" element of HTML.
+- [*[#[=[+=]#]*] ... [*[#[=+]=]#]*] : insertion, corresponding to the "ins" element of HTML.
+- [*[#[=[-=]#]*] ... [*[#[=-]=]#]*] : deletion, corresponding to the "del" element of HTML.
+- [*[#[=[#=]#]*] ... [*[##[=]=]#]*] : code, corresponding to the "code" element of HTML.
+- [*[#[=[$=]#]*] ... [*[#[=$]=]#]*] : variable, corresponding to the "var" element of HTML.
+- [*[#[=[==]#]*] ... [*[#=]#]*] : verbatim string, shown as it is.
+
+Inline structure can be nested.  For example, if you want to emphasize a link anchor, describe "[#[=[*[[foo]]*]=]#]".
+
+*** Special Notation of URL
+
+you can use the following prefixes and they have special meanings.
+
+- [*[#id:#]*] : refers to the article whose ID number is the trailing number.
+- [*[#name:#]*] : refers to the article whose name is the trailing string.
+- [*[#param:#]*] : refers to the function whose parameter is the trailing string.
+- [*[#upfile:#]*] : refers to the upload file whose name is the trailing string.
+- [*[#wpen:#]*] : refers to English Wikipedia's article whose name is the trailing string.
+- [*[#wpja:#]*] : refers to Japanese Wikipedia's article whose name is the trailing string.
+
+For example, if you want to make an anchor string "foo" refer to the article whose name is "bar", describe "[#[=[[foo|name:bar]]=]#]".  If you want to make an anchor string "JoJo" refer to the Wikipedia's article whose name is "JoJo's_Bizarre_Adventure", describe "[#[=[[JoJo|wpen:JoJo's_Bizarre_Adventure]]=]#]".
+
+** Sample
+
+{{{{{{
+#! Tokyo Promenade
+#c 2008-08-04T12:10:11+09:00
+#m 2008-08-05T08:28:08+09:00
+#o mikio
+#t public,example
+
+This is a sample article.  Paragraphs are separated by line-feeds.
+
+Empty lines are ignored.  Here is the second paragraph.
+
+* Topic (level 1)
+** Topic (level 2)
+*** Topic (level 3)
+
+- list without ordinal numbers (level 1)
+-- list without ordinal numbers (level 2)
+--- list without ordinal numbers (level 3)
+
++ list with ordinal numbers (level 1)
+++ list with ordinal numbers (level 2)
++++ list with ordinal numbers (level 3)
+
+# images
+@ http://tokyocabinet.sf.net/logo.png
+@ upfile:1249831173-logo.jpg|400|300|Logo of Tokyo Cabinet
+
+# side adjust images
+@< upfile:1249831173-logo.jpg
+@<< upfile:1249831173-logo.jpg
+@> upfile:1249831173-logo.jpg
+@>> upfile:1249831173-logo.jpg
+
+# images in triple columns
+@|| http://tokyocabinet.sf.net/logo.png
+@|| http://tokyocabinet.sf.net/logo.png
+@|| http://tokyocabinet.sf.net/logo.png
+
+# table
+|name|sex|age|hobby
+|John|male|32|tennis,golf
+|Nancy|female|28|tennis,shopping
+|Bill|male|16|guitar,soccer
+|kate|female|19|reading
+
+# pre-formatted text
 {{{
-hoge
+#include <stdio.h>
+int main(int argc, char **argv){
+  return 0;
+}
 }}}
-}}}}
+
+I love [[Tokyo Promenade]].  [[TP|name:Tokyo Promenade]] sounds good.
+But, I love [[Tokyo Cabinet|http://1978th.net/tokyocabinet/]] more.
+
+Use [*emphasis*], ["citation"], [+insertion+], [-deletion-], and [#cond#].
+}}}}}}
+
+** To Remove Articles
+
+If you submit an empty data when editing an article, the article is removed.
+
+** To add comments to articles
+
+According to the site configuration, the comment input form is shown in the page of each article.  In that case, you can add comments easily by inputting your user name and the body text.
+
+===
+
+* To Upload Files
+
+In order to insert images into articles and to distribute some archive files, you can use the file upload function.  The link "[#Files#]" in the navigation bar guides you to the file upload page.  If there are existing files, the list of the files is shown.  Moreover, an input form to upload a new file is shown.
+
+When you select a file by the file chooser like "[#file...#]" and press the "[#upload#]" button, the file is uploaded to the server and is stored there.  The file is named after the original file name or named by the string specified by the "[#name#]" field.  Because each file is identified by the time stamp, multiple files of the same name can be uploaded.
+
+** Internal Identifier for Files
+
+When you refer in each article to a uploaded file, use the URL of the "[#(relative)#]" anchor whose format is "[#upfile:xxxxx#]".  It is useful when you specify the image URL of the "[#@#]" notation.  Though using the absolute URL has no problem at the moment, it will cause a missing link problem when the site moves.
+
+===
+
+* Atom Feed
+
+Atom feed is useful to check site updates.  Set your Web browser or RSS reader supporting Atom feed to read [[the newcome article feed|param:format=atom&act=timeline&order=cdate]] or [[the recent modification feed|param:format=atom&act=timeline&order=mdate]].  Moreover, each article page and arbitrary search result page have their feed.

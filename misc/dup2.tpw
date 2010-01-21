@@ -1,7 +1,24 @@
 #! dup
-#c 2003-03-03T03:03:03+09:00
+#c 2003-04-04T04:04:04+09:00
 #m 2004-04-04T04:04:04+09:00
 
 * duplicated article
 
-This is a [[duplicated|name:dup]] article.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.
+This is a [[duplicated|name:dup]] article.  This is a [*pen*].  This is a ["pen"].  This is a [+pen+].  This is a [-pen-].  This is a [#pen#].  This is a [$pen$].  This is a [=pen=].  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.  This is a pen.
+
+#% 2009-09-16T11:10:01+09:00|george|About the only thing we have left that actually discriminates in favor of the plain people is the stork.
+#% 2009-09-16T11:10:02+09:00|michael|Why can't you be a non-conformist like everyone else?
+#% 2009-09-16T11:10:03+09:00|bill|I know you're in search of yourself, I just haven't seen you anywhere.
+#% 2009-09-16T11:10:04+09:00|John Doe|Mr. Rockford?  This is Betty Joe Withers.  I got four shirts of yours from the Bo Peep Cleaners by mistake.  I don't know why they gave me men's shirts but they're going back.
+#% 2009-09-16T11:10:05+09:00|Lewis Carrol|Es brilig war.  Die schlichte Toven Wirrten und wimmelten in Waben; Und aller-mumsige Burggoven Dir mohmen Rath ausgraben.
+#% 2009-09-16T11:10:06+09:00|Rob Pike|Not only is UNIX dead, it's starting to smell really bad.
+#% 2009-09-16T11:10:07+09:00|Edmund Wilson|No two persons ever read the same book.
+#% 2009-09-16T11:10:08+09:00|David Broder|Oh, that sound of male ego.  You travel halfway across the galaxy and it's still the same song.
+#% 2009-09-16T11:10:09+09:00|David Leimbach|Libtool shared library portability is only slightly more believable than perpetual motion machines.  Especially on AIX :).
+#% 2009-09-16T11:10:10+09:00|anon|As some day it may happen that a victim must be found.  I've got a little list -- I've got a little list of society offenders who might well be underground and who never would be missed -- who never would be missed.
+#% 2009-09-16T11:10:11+09:00|over1|I have one.
+#% 2009-09-16T11:10:12+09:00|over2|I have two.
+#% 2009-09-16T11:10:13+09:00|over3|I have three.
+#% 2009-09-16T11:10:14+09:00|over4|I have four.
+#% 2009-09-16T11:10:15+09:00|over5|I have five.
+#% 2009-09-16T11:10:16+09:00|over6|I have six.

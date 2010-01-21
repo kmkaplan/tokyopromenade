@@ -4,80 +4,303 @@
 [% CONF database "promenade.tct" \%]
 [% CONF password "passwd.txt" \%]
 [% CONF upload "upload" \%]
+[% CONF scrext "" \%]
 [% CONF recvmax "64m" \%]
 [% CONF title "Tokyo Promenade" \%]
+[% CONF subtitle "a content management system" \%]
 [% CONF lang "en" \%]
+[% CONF author "Office Blackboard" \%]
 [% CONF searchnum "30" \%]
 [% CONF listnum "5" \%]
+[% CONF feedlistnum "10" \%]
 [% CONF filenum "10" \%]
-[% CONF commentmode "login" \%]
-[% CONF frontpage "FrontPage" \%]
+[% CONF sidebarnum "0" \%]
+[% CONF commentmode "riddle" \%]
+[% CONF updatecmd "" \%]
+[% CONF sessionlife "604800" \%]
+[% CONF homepage "" \%]
+[% CONF frontpage "" \%]
+[% CONF aboutpage "tp-about" \%]
+[% SET helppage "tp-help-en" \%]
+[% IF userlang EQ "ja" \%][% SET helppage "tp-help-ja" %][% END \%]
+[% SET uaclass "generic" \%]
+[% IF useragent INC "Firefox" \%][% SET uaclass "firefox" %][% END \%]
+[% IF useragent INC "MSIE" \%][% SET uaclass "msie" %][% END \%]
+[% IF useragent INC "Safari" \%][% SET uaclass "safari" %][% END \%]
+[% IF useragent INC "Chrome" \%][% SET uaclass "chrome" %][% END \%]
+[% IF useragent INC "Opera" \%][% SET uaclass "opera" %][% END \%]
+[% SET envclass "generic" \%]
+[% IF useragent INC "Linux" \%][% SET envclass "linux" %][% END \%]
+[% IF useragent INC "Mac OS X" \%][% SET envclass "macosx" %][% END \%]
+[% IF useragent INC "Windows" \%][% SET envclass "windows" %][% END \%]
+[% IF useragent INC "iPhone" \%][% SET envclass "iphone" %][% END \%]
+[% IF useragent INC "Android" \%][% SET envclass "android" %][% END \%]
+[%--------------------------------
+  - Atom feed
+  --------------------------------\%]
+[% IF format EQ "atom" \%]
 <?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="[% lang ENC XML %]" xml:base="[% scripturl %]">
+<id>[% scripturl %]?format=html[% comquery ENC XML %]</id>
+<title>[% title ENC XML %]: [% titletip ENC XML %]</title>
+[% IF view EQ "single" NOT \%]
+[% IF subtitle PRT \%]
+<subtitle>[% subtitle ENC XML %]</subtitle>
+[% END \%]
+[% END \%]
+<link rel="self" href="[% scripturl %]?format=atom[% comquery ENC XML %]"/>
+<link rel="alternate" href="[% scripturl %]?format=html[% comquery ENC XML %]"/>
+[% IF art.xdate \%]
+<updated>[% art.xdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>[% mtime ENC XML %]</updated>
+[% END \%]
+<author>
+<name>[% author ENC XML %]</name>
+</author>
+<generator version="[% tpversion ENC XML %]">Tokyo Promenade</generator>
+[% IF view EQ "single" \%]
+<entry>
+<id>[% scripturl %]?id=[% art.id ENC XML %]</id>
+<title>[% art.name ENC XML %]</title>
+[% IF art.cdate \%]
+<published>[% art.cdate ENC XML %]</published>
+[% END \%]
+[% IF art.mdate \%]
+<updated>[% art.mdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>1978-02-11T18:05:00+09:00</updated>
+[% END \%]
+[% IF art.owner \%]
+<author>
+<name>[% art.owner ENC XML %]</name>
+</author>
+[% END \%]
+[% FOREACH art.taglist tag \%]
+<category term="[% tag ENC XML %]" />
+[% END \%]
+<link rel="alternate" href="[% scripturl %]?id=[% art.id ENC XML %]"/>
+[% IF art.texthtml \%]
+<content type="xhtml">
+<div xmlns="http://www.w3.org/1999/xhtml">
+[% art.texthtml \%]
+</div>
+</content>
+[% END \%]
+</entry>
+[% FOREACH art.comments com \%]
+<entry>
+<id>[% scripturl %]?id=[% art.id ENC XML %]#article[% art.id ENC XML %]_c[% com.cnt ENC XML %]</id>
+<title>[% art.name ENC XML %]: comment-[% com.cnt ENC XML %]</title>
+<updated>[% com.date ENC XML %]</updated>
+<author>
+<name>[% com.owner ENC XML %]</name>
+</author>
+<link rel="alternate" href="[% scripturl %]?id=[% art.id ENC XML %]#article[% art.id ENC XML %]_c[% com.cnt ENC XML %]"/>
+<content type="xhtml">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<div>[% com.texthtml %]</div>
+</div>
+</content>
+</entry>
+[% END \%]
+[% END \%]
+[% IF view EQ "timeline" \%]
+[% FOREACH arts art \%]
+<entry>
+<id>[% scripturl %]?id=[% art.id ENC XML %]</id>
+<title>[% art.name ENC XML %]</title>
+[% IF art.cdate \%]
+<published>[% art.cdate ENC XML %]</published>
+[% END \%]
+[% IF params.order EQ "xdate" \%]
+[% IF art.xdate \%]
+<updated>[% art.xdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>2009-08-10T16:24:00+09:00</updated>
+[% END \%]
+[% ELSE \%]
+[% IF art.mdate \%]
+<updated>[% art.mdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>1978-02-11T18:05:00+09:00</updated>
+[% END \%]
+[% END \%]
+[% IF art.owner \%]
+<author>
+<name>[% art.owner ENC XML %]</name>
+</author>
+[% END \%]
+[% FOREACH art.taglist tag \%]
+<category term="[% tag ENC XML %]" />
+[% END \%]
+<link rel="alternate" href="[% scripturl %]?id=[% art.id ENC XML %]"/>
+[% IF art.texthtml \%]
+<content type="xhtml">
+<div xmlns="http://www.w3.org/1999/xhtml">
+[% art.texthtml \%]
+[% IF art.comments \%]
+<div class="comments" id="article[% art.id ENC XML %]_comments">
+[% FOREACH art.comments com \%]
+<div class="comment" id="article[% art.id ENC XML %]_c[% com.cnt ENC XML %]">
+<span class="owner">[% com.owner ENC XML %]</span> :
+<span class="text">[% com.texthtml %]</span>
+<span class="date">([% com.datesimple ENC XML %])</span>
+</div>
+[% END \%]
+</div>
+[% END \%]
+</div>
+</content>
+[% END \%]
+</entry>
+[% END \%]
+[% END \%]
+[% IF view EQ "search" \%]
+[% FOREACH arts art \%]
+<entry>
+<id>[% scripturl %]?id=[% art.id ENC XML %]</id>
+<title>[% art.name ENC XML %]</title>
+[% IF art.cdate \%]
+<published>[% art.cdate ENC XML %]</published>
+[% END \%]
+[% IF params.order EQ "xdate" \%]
+[% IF art.xdate \%]
+<updated>[% art.xdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>2009-08-10T16:24:00+09:00</updated>
+[% END \%]
+[% ELSE \%]
+[% IF art.mdate \%]
+<updated>[% art.mdate ENC XML %]</updated>
+[% ELSE \%]
+<updated>1978-02-11T18:05:00+09:00</updated>
+[% END \%]
+[% END \%]
+[% IF art.owner \%]
+<author>
+<name>[% art.owner ENC XML %]</name>
+</author>
+[% END \%]
+[% FOREACH art.taglist tag \%]
+<category term="[% tag ENC XML %]" />
+[% END \%]
+<link rel="alternate" href="[% scripturl %]?id=[% art.id ENC XML %]"/>
+[% IF art.texttiny \%]
+<summary type="text">[% art.texttiny ENC XML %]</summary>
+[% END \%]
+</entry>
+[% END \%]
+[% END \%]
+</feed>
+[% END \%]
 [%--------------------------------
   - preamble
   --------------------------------\%]
+[% IF format EQ "html" \%]
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[% lang ENC XML %]" lang="[% lang ENC XML %]">
 <head>
 <meta http-equiv="Content-Language" content="[% lang ENC XML %]" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="[% mimetype ENC XML %]" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
-<link rel="contents" href="[% scriptname %]" />
-<link rel="stylesheet" href="[% scriptprefix %].css" />
-[% IF subtitle \%]
-<title>[% title ENC XML %]: [% subtitle ENC XML %]</title>
+[% IF lastmod \%]
+<meta http-equiv="Last-Modified" content="[% lastmod %]" />
+[% END \%]
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta name="author" content="[% author ENC XML %]" />
+<meta name="generator" content="Tokyo Promenade [% tpversion ENC XML %]" />
+[% IF robots \%]
+<meta name="robots" content="[% robots ENC XML %]" />
+[% ELSE \%]
+<meta name="robots" content="noindex,nofollow" />
+[% END \%]
+<link rel="start" href="[% scriptname %]" type="[% mimetype ENC XML %]" title="the top page" />
+[% IF prev \%]
+<link rel="prev" href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]" title="the previous page" />
+[% END \%]
+[% IF next \%]
+<link rel="next" href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]" title="the next page" />
+[% END \%]
+[% IF helppage PRT \%]
+<link rel="help" href="[% scriptname %]?name=[% helppage ENC URL %]&amp;adjust=front" title="the help page" />
+[% END \%]
+<link rel="alternate" href="[% scriptname %]?format=atom&amp;act=timeline&amp;order=cdate" type="application/atom+xml" title="Atom feed by creation date" />
+<link rel="alternate" href="[% scriptname %]?format=atom&amp;act=timeline&amp;order=mdate" type="application/atom+xml" title="Atom feed by modification date" />
+<link rel="alternate" href="[% scriptname %]?format=atom&amp;act=timeline&amp;order=xdate" type="application/atom+xml" title="Atom feed by comment date" />
+[% IF view EQ "single" \%]
+<link rel="alternate" href="[% scriptname %]?format=atom[% comquery ENC XML %]" type="application/atom+xml" title="Atom feed of this article" />
+[% END \%]
+[% IF view EQ "search" \%]
+<link rel="alternate" href="[% scriptname %]?format=atom[% comquery ENC XML %]" type="application/atom+xml" title="Atom feed of this search result" />
+[% END \%]
+<link rel="stylesheet" href="[% scriptprefix %].css" type="text/css" />
+[% IF titletip \%]
+<title>[% title ENC XML %]: [% titletip ENC XML %]</title>
 [% ELSE \%]
 <title>[% title ENC XML %]</title>
 [% END \%]
 </head>
-<body>
-<div id="main" class="view_[% view ENC XML %] view_main">
+<body class="ua_[% uaclass ENC XML %] env_[% envclass ENC XML %]">
+<div id="frame" class="frame_[% IF sidebar %]multi[% ELSE %]normal[% END %]">
+<div id="main" class="view_[% view ENC XML %]">
 [%--------------------------------
   - navigation bar
   --------------------------------\%]
 <div id="topnavi">
-[% IF basicauth \%]
-<span>Welcome, [% username ENC XML %]</span> -
-[% ELSE \%]
-[% IF users \%]
 [% IF username \%]
-<span>Welcome, [% username ENC XML %]</span> -
-<a href="[% scriptname %]?act=logout">Logout</a>
-[% ELSE \%]
-<a href="[% scriptname %]?act=login">Login</a>
+<span>Welcome, <span class="user">[% username ENC XML %]</span></span> -
 [% END \%]
+[% IF homepage PRT \%]
+<a href="[% homepage ENC XML %]" title="move to the home page">Home</a>
 [% END \%]
+<a href="[% scriptname %]" title="move to the top page">Top</a>
+[% IF aboutpage PRT \%]
+<a href="[% scriptname %]?name=[% aboutpage ENC URL %]&amp;adjust=front" title="move to the page about this site">About</a>
 [% END \%]
-<a href="[% scriptname %]">Top</a>
+[% IF helppage PRT \%]
+<a href="[% scriptname %]?name=[% helppage ENC URL %]&amp;adjust=front" title="move to the help page">Help</a>
+[% END \%]
 [% IF users \%]
+[% IF basicauth NOT \%]
+[% IF username \%]
+<a href="[% scriptname %]?act=logout[% IF params.id %]&amp;id=[% params.id ENC XML %][% END %][% IF params.name %]&amp;name=[% params.name ENC XML %][% END %]" title="logout from this account">Logout</a>
+[% ELSE \%]
+<a href="[% scriptname %]?act=login[% IF params.id %]&amp;id=[% params.id ENC XML %][% END %][% IF params.name %]&amp;name=[% params.name ENC XML %][% END %]" title="login as a registerd user">Login</a>
+[% END \%]
+[% END \%]
 [% IF admin \%]
-<a href="[% scriptname %]?act=users">Users</a>
+<a href="[% scriptname %]?act=users" title="manage the registered users">Users</a>
 [% END \%]
 [% END \%]
 [% IF auth \%]
-[% IF upload \%]
-<a href="[% scriptname %]?act=files">Files</a>
+[% IF upload PRT \%]
+<a href="[% scriptname %]?act=files" title="manage the upload files">Files</a>
 [% END \%]
 [% IF view EQ "front" \%]
 [% IF art.frozen NOT \%]
-<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]">Edit</a>
+<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]" title="edit this article">Edit</a>
 [% END \%]
 [% END \%]
 [% IF view EQ "single" \%]
 [% IF art.frozen NOT \%]
-<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]">Edit</a>
+<a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]" title="edit this article">Edit</a>
 [% END \%]
 [% ELSE \%]
-<a href="[% scriptname %]?act=edit">Post</a>
+<a href="[% scriptname %]?act=edit" title="post a new article">Post</a>
 [% END \%]
 [% END \%]
-<a href="[% scriptname %]?act=search">Search</a>
+[% IF frontpage PRT \%]
+<a href="[% scriptname %]?act=timeline" title="show articles in the timeline">Timeline</a>
+[% END \%]
+<a href="[% scriptname %]?act=search" title="search for articles">Search</a>
 [% IF prev \%]
-<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]">Prev</a>
+<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]" title="move to the previous page">Prev</a>
 [% END \%]
 [% IF next \%]
-<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]">Next</a>
+<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]" title="move to the next page">Next</a>
 [% END \%]
 </div>
 [%--------------------------------
@@ -89,11 +312,18 @@
 <p class="error">[% emsg ENC XML %]</p>
 [% END \%]
 [% END \%]
+[% IF beginmsg PRT \%]
+<h2>Beginning Message</h2>
+<p class="info beginmsg">[% beginmsg ENC XML %]</p>
+[% END \%]
+[% IF endmsg PRT \%]
+<h2>Ending Message</h2>
+<p class="info endmsg">[% endmsg ENC XML %]</p>
+[% END \%]
 [%--------------------------------
   - login view
   --------------------------------\%]
 [% IF view EQ "login" \%]
-<hr />
 [% IF params.user \%]
 <p class="info">The input data was wrong.  Please confirm it and retry.</p>
 [% ELSE \%]
@@ -125,17 +355,19 @@
   - empty view
   --------------------------------\%]
 [% IF view EQ "empty" \%]
-<hr />
+[% IF cond PRT \%]
 <p class="info">There is no article for "<cite>[% cond ENC XML %]</cite>".</p>
+[% ELSE \%]
+<p class="info">There is no article.</p>
+[% END \%]
 [% IF missname \%]
-<p class="info">Post a new article for "<cite><a href="[% scriptname %]?act=edit&amp;name=[% missname ENC XML %]">[% missname ENC XML %]</a></cite>".</p>
+<p class="info">Post a new article for "<cite><a href="[% scriptname %]?act=edit&amp;name=[% missname ENC XML %][% IF params.adjust EQ "front" %]&amp;adjust=front[% END %]">[% missname ENC XML %]</a></cite>".</p>
 [% END \%]
 [% END \%]
 [%--------------------------------
   - single view
   --------------------------------\%]
 [% IF view EQ "single" \%]
-<hr />
 <div class="article" id="article[% art.id ENC XML %]">
 <h1 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h1>
 <div class="attr">ID: <span class="id">[% art.id ENC XML %]</span></div>
@@ -160,7 +392,7 @@
 <div class="comments" id="article[% art.id ENC XML %]_comments">
 <div class="meta">[% art.comnum ENC XML %] comments</div>
 [% FOREACH art.comments com \%]
-<div class="comment">
+<div class="comment" id="article[% art.id ENC XML %]_c[% com.cnt ENC XML %]">
 <span class="owner">[% com.owner ENC XML %]</span> :
 <span class="text">[% com.texthtml %]</span>
 <span class="date">([% com.datesimple ENC XML %])</span>
@@ -170,7 +402,7 @@
 <form method="post" action="[% scriptname %]" class="commentform">
 <div class="commentformline">
 [% IF username \%]
-<span>[% username ENC XML %]</span> :
+<span class="user">[% username ENC XML %]</span> :
 <input type="hidden" name="comowner" value="[% username ENC XML %]" />
 [% ELSE \%]
 <input type="text" name="comowner" value="[% params.comowner ENC XML %]" size="8" /> :
@@ -182,6 +414,22 @@
 </div>
 </form>
 [% END \%]
+[% IF ridque \%]
+<form method="post" action="[% scriptname %]" class="riddleform">
+<dl class="riddleformlist">
+<dt>riddle for guest comment authorization:</dt>
+<dd>
+<span class="question">[% ridque ENC XML %]</span> ...
+<input type="text" name="umridans" value="" size="12" />
+<input type="submit" value="answer" />
+<input type="hidden" name="id" value="[% art.id ENC XML %]" />
+[% IF params.umridans PRT \%]
+... <span class="wrong">Incorrect answer. Please, try again.</span>
+[% END \%]
+</dd>
+</dl>
+</form>
+[% END \%]
 </div>
 [% END \%]
 </div>
@@ -190,7 +438,6 @@
   - search view
   --------------------------------\%]
 [% IF view EQ "search" \%]
-<hr />
 [% IF cond \%]
 <p class="info">There are multiple articles for "<cite>[% cond ENC XML %]</cite>".</p>
 [% ELSE \%]
@@ -206,6 +453,9 @@ from
 <option value="name"[% IF params.cond EQ "name" %] selected="selected"[% END %]>name (full matching)</option>
 <option value="namebw"[% IF params.cond EQ "namebw" %] selected="selected"[% END %]>name (forward matching)</option>
 <option value="namefts"[% IF params.cond EQ "namefts" %] selected="selected"[% END %]>name (full-text search)</option>
+<option value="cdate"[% IF params.cond EQ "cdate" %] selected="selected"[% END %]>creation date (range)</option>
+<option value="mdate"[% IF params.cond EQ "mdate" %] selected="selected"[% END %]>modification date (range)</option>
+<option value="xdate"[% IF params.cond EQ "xdate" %] selected="selected"[% END %]>comment date (range)</option>
 <option value="owner"[% IF params.cond EQ "owner" %] selected="selected"[% END %]>owner (full matching)</option>
 <option value="ownerbw"[% IF params.cond EQ "ownerbw" %] selected="selected"[% END %]>owner (forward matching)</option>
 <option value="ownerfts"[% IF params.cond EQ "ownerfts" %] selected="selected"[% END %]>owner (full-text search)</option>
@@ -221,37 +471,74 @@ from
 <option value="_cdate"[% IF params.order EQ "_cdate" %] selected="selected"[% END %]>creation date (ascending)</option>
 <option value="mdate"[% IF params.order EQ "mdate" %] selected="selected"[% END %]>modification date (decending)</option>
 <option value="_mdate"[% IF params.order EQ "_mdate" %] selected="selected"[% END %]>modification date (ascending)</option>
+<option value="xdate"[% IF params.order EQ "xdate" %] selected="selected"[% END %]>comment date (decending)</option>
+<option value="_xdate"[% IF params.order EQ "_xdate" %] selected="selected"[% END %]>comment date (ascending)</option>
 </select>
 <input type="hidden" name="act" value="search" />
 </div>
 </form>
 [% END \%]
 [% IF arts \%]
+[% IF hitnum \%]
 <dl id="searchresult">
 [% FOREACH arts art \%]
 <dt id="article[% art.id ENC XML %]"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></dt>
-<dd>ID=<span class="id">[% art.id ENC XML %]</span>[% IF art.cdate %], cdate=<span class="cdate">[% art.cdate ENC XML %]</span>[% END %][% IF art.owner %], owner=<span class="owner">[% art.owner ENC XML %]</span>[% END %]</dd>
 [% IF art.texttiny \%]
-<dd>[% art.texttiny ENC XML %]</dd>
+<dd class="text">[% art.texttiny ENC XML %]</dd>
 [% END \%]
 [% IF art.textkwichtml \%]
-<dd>[% art.textkwichtml %]</dd>
+<dd class="kwic">[% art.textkwichtml %]</dd>
 [% END \%]
+<dd class="attr">ID=<span class="id">[% art.id ENC XML %]</span>[% IF art.cdatesimple %], cdate=<span class="cdate">[% art.cdatesimple ENC XML %]</span>[% END %][% IF art.mdatesimple %], mdate=<span class="cdate">[% art.mdatesimple ENC XML %]</span>[% END %][% IF art.owner %], owner=<span class="owner">[% art.owner ENC XML %]</span>[% END %][% IF art.tags %], tags=<span class="tags">[% art.tags ENC XML %]</span>[% END %]</dd>
 [% END \%]
 </dl>
 [% ELSE \%]
-[% IF resnum \%]
-<p class="info">There is no matching article.</p>
+[% IF arts \%]
+<div class="listcolumn">
+<h2>recent articles</h2>
+<ul id="recent">
+[% FOREACH arts art \%]
+<li id="article[% art.id ENC XML %]"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></li>
 [% END \%]
+</ul>
+</div>
+[% END \%]
+[% IF arcyears \%]
+<div class="listcolumn">
+<h2>archives</h2>
+<ul id="archive">
+[% FOREACH arcyears arcyear \%]
+<li><a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]">[% arcyear.year ENC XML %]</a>:
+<span class="months">
+[% IF arcyear.01 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-01">01</a>[% ELSE %]<span class="void">01</span>[% END %]
+[% IF arcyear.02 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-02">02</a>[% ELSE %]<span class="void">02</span>[% END %]
+[% IF arcyear.03 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-03">03</a>[% ELSE %]<span class="void">03</span>[% END %]
+[% IF arcyear.04 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-04">04</a>[% ELSE %]<span class="void">04</span>[% END %]
+[% IF arcyear.05 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-05">05</a>[% ELSE %]<span class="void">05</span>[% END %]
+[% IF arcyear.06 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-06">06</a>[% ELSE %]<span class="void">06</span>[% END %]
+[% IF arcyear.07 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-07">07</a>[% ELSE %]<span class="void">07</span>[% END %]
+[% IF arcyear.08 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-08">08</a>[% ELSE %]<span class="void">08</span>[% END %]
+[% IF arcyear.09 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-09">09</a>[% ELSE %]<span class="void">09</span>[% END %]
+[% IF arcyear.10 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-10">10</a>[% ELSE %]<span class="void">10</span>[% END %]
+[% IF arcyear.11 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-11">11</a>[% ELSE %]<span class="void">11</span>[% END %]
+[% IF arcyear.12 %]<a href="[% scriptname %]?act=search&amp;cond=cdate&amp;order=_cdate&amp;expr=[% arcyear.year ENC XML %]-12">12</a>[% ELSE %]<span class="void">12</span>[% END %]
+</span>
+</li>
+[% END \%]
+</ul>
+</div>
+[% END \%]
+[% END \%]
+[% ELSE \%]
+<p class="info">There is no matching article.</p>
 [% END \%]
 [% END \%]
 [%--------------------------------
   - front view
   --------------------------------\%]
 [% IF view EQ "front" \%]
-<hr />
 <div class="article" id="frontpage">
-<h1 class="attr ah0"><a href="[% scriptname %]" class="name">[% art.name ENC XML %]</a></h1>
+<h1 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h1>
 [% IF art.texthtml \%]
 <div class="text">
 [% art.texthtml \%]
@@ -260,12 +547,17 @@ from
 </div>
 [% END \%]
 [%--------------------------------
-  - list view
+  - timeline view
   --------------------------------\%]
-[% IF view EQ "list" \%]
+[% IF view EQ "timeline" \%]
+<div class="logo">
 <h1 class="title"><a href="[% scriptname %]">[% title ENC XML %]</a></h1>
-[% FOREACH arts art \%]
+[% IF subtitle PRT \%]
+<div class="subtitle">[% subtitle ENC XML %]</div>
+[% END \%]
+</div>
 <hr />
+[% FOREACH arts art \%]
 <div class="article" id="article[% art.id ENC XML %]">
 <h2 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h2>
 [% IF art.cdate \%]
@@ -283,13 +575,13 @@ from
 <div class="comnum"><a href="[% scriptname %]?id=[% art.id ENC XML %]#article[% art.id ENC XML %]_comments">([% art.comnum ENC XML %] comments)</a></div>
 [% END \%]
 </div>
+<hr />
 [% END \%]
 [% END \%]
 [%--------------------------------
   - edit view
   --------------------------------\%]
 [% IF view EQ "edit" \%]
-<hr />
 [% IF art \%]
 <p class="info">Edit the article "<cite>[% art.name ENC XML %]</cite>" (id=[% art.id ENC XML %]).</p>
 [% ELSE \%]
@@ -311,7 +603,7 @@ from
 </div>
 <div class="editformsubmit">
 <input type="submit" value="submit" />
-- modify timestamp:<input type="checkbox" name="mts" value="on" checked="checked" />
+- modify timestamp:<input type="checkbox" name="mts" value="on" />
 <input type="hidden" name="id" value="[% art.id ENC XML %]" />
 <input type="hidden" name="hash" value="[% art.hash ENC XML %]" />
 <input type="hidden" name="act" value="preview" />
@@ -322,7 +614,6 @@ from
   - collision view
   --------------------------------\%]
 [% IF view EQ "collision" \%]
-<hr />
 <p class="info">Collision was detected.  Please resolve it and retry.</p>
 <form method="post" action="[% scriptname %]" class="editform">
 <div class="editformwiki">
@@ -339,7 +630,6 @@ from
   - removecheck view
   --------------------------------\%]
 [% IF view EQ "removecheck" \%]
-<hr />
 <p class="info">Confirm that you will remove the article "<cite>[% art.name ENC XML%]</cite>" (id=[% id ENC XML %]).</p>
 <form method="post" action="[% scriptname %]" class="editform">
 <div class="editformsubmit">
@@ -347,6 +637,7 @@ from
 <input type="hidden" name="id" value="[% id ENC XML %]" />
 <input type="hidden" name="hash" value="[% hash ENC XML %]" />
 <input type="hidden" name="act" value="update" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 [% END \%]
@@ -354,16 +645,15 @@ from
   - preview view
   --------------------------------\%]
 [% IF view EQ "preview" \%]
-<hr />
-<p class="info">Preview the article.</p>
+<p class="info">Preview the article.  Note that this update is not saved until you submit it.</p>
 <div class="article" id="article[% art.id ENC XML %]">
 <h1 class="attr ah0"><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></h1>
 <div class="attr">ID: <span class="id">[% art.id ENC XML %]</span></div>
 [% IF art.cdate \%]
-<div class="attr">creation date: <span class="cdate">[% art.cdate ENC XML %]</span></div>
+<div class="attr">creation date: <span class="cdate">[% art.cdatesimple ENC XML %]</span></div>
 [% END \%]
 [% IF art.mdate \%]
-<div class="attr">modification date: <span class="mdate">[% art.mdate ENC XML %]</span></div>
+<div class="attr">modification date: <span class="mdate">[% art.mdatesimple ENC XML %]</span></div>
 [% END \%]
 [% IF art.owner \%]
 <div class="attr">owner: <span class="owner">[% art.owner ENC XML %]</span></div>
@@ -390,6 +680,7 @@ from
 <input type="hidden" name="id" value="[% id ENC XML %]" />
 <input type="hidden" name="hash" value="[% hash ENC XML %]" />
 <input type="hidden" name="act" value="update" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 [% END \%]
@@ -397,21 +688,18 @@ from
   - store view
   --------------------------------\%]
 [% IF view EQ "store" \%]
-<hr />
 <p class="info">The article "<cite><a href="[% scriptname %]?id=[% art.id ENC XML %]" class="name">[% art.name ENC XML %]</a></cite>" ([% art.id ENC XML %]) have been stored.</p>
 [% END \%]
 [%--------------------------------
   - remove view
   --------------------------------\%]
 [% IF view EQ "remove" \%]
-<hr />
 <p class="info">The article "<cite>[% art.name ENC XML %]</cite>" ([% art.id ENC XML %]) have been removed.</p>
 [% END \%]
 [%--------------------------------
   - users view
   --------------------------------\%]
 [% IF view EQ "users" \%]
-<hr />
 [% IF newuser \%]
 <p class="info">A new user "<cite>[% newuser ENC XML %]</cite>" have been created.</p>
 [% END \%]
@@ -421,9 +709,15 @@ from
 [% IF deluser \%]
 <p class="info">The user "<cite>[% deluser ENC XML %]</cite>" have been deleted.</p>
 [% END \%]
+[% IF chrid \%]
+<p class="info">The riddle for guest comment autorization have been changed.</p>
+[% END \%]
+[% IF tologin \%]
+<p class="info">Please login with a new account information.</p>
+[% ELSE \%]
 <form method="post" action="[% scriptname %]" class="usernewform">
 <dl>
-<dt>name:</dt>
+<dt>name of a new user:</dt>
 <dd>
 <input type="text" name="umname" value="" size="16" />
 <span class="note">(alphabets, digits, "-", and "_" are available)</span>
@@ -444,6 +738,7 @@ from
 <input type="submit" value="create" />
 <input type="hidden" name="act" value="users" />
 <input type="hidden" name="ummode" value="new" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </dd>
 </dl>
 </form>
@@ -467,6 +762,7 @@ from
 <input type="hidden" name="act" value="users" />
 <input type="hidden" name="ummode" value="chpw" />
 <input type="hidden" name="umname" value="[% user.name ENC XML %]" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 </td>
@@ -481,6 +777,7 @@ confirm:<input type="checkbox" name="confirm" value="on" />
 <input type="hidden" name="act" value="users" />
 <input type="hidden" name="ummode" value="del" />
 <input type="hidden" name="umname" value="[% user.name ENC XML %]" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 [% END \%]
@@ -488,12 +785,34 @@ confirm:<input type="checkbox" name="confirm" value="on" />
 </tr>
 [% END \%]
 </table>
+[% IF commentmode EQ "riddle" \%]
+<form method="post" action="[% scriptname %]" class="userridform">
+<dl>
+<dt>question for guest comment authorization:</dt>
+<dd>
+<input type="text" name="umridque" value="[% ridque ENC XML %]" size="48" />
+</dd>
+<dt>answer:</dt>
+<dd>
+<input type="text" name="umridans" value="[% ridans ENC XML %]" size="16" />
+<span class="note">(alphabets, digits, "-", and "_" are available)</span>
+</dd>
+<dt>action:</dt>
+<dd>
+<input type="submit" value="set" />
+<input type="hidden" name="act" value="users" />
+<input type="hidden" name="ummode" value="rid" />
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
+</dd>
+</dl>
+</form>
+[% END \%]
+[% END \%]
 [% END \%]
 [%--------------------------------
   - files view
   --------------------------------\%]
 [% IF view EQ "files" \%]
-<hr />
 [% IF newfile \%]
 <p class="info">A new file "<cite>[% newfile ENC XML %]</cite>" have been added.</p>
 [% END \%]
@@ -522,6 +841,7 @@ confirm:<input type="checkbox" name="confirm" value="on" />
 [% IF params.fmthum EQ "on" \%]
 <input type="hidden" name="fmthum" value="on" />
 [% END \%]
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </dd>
 </dl>
 </form>
@@ -549,21 +869,37 @@ thumnail:<input type="checkbox" name="fmthum" value="on"[% IF params.fmthum EQ "
 [% FOREACH files file \%]
 <tr>
 <td class="name">
-<div class="name"><a href="[% scriptname %]/[% file.path ENC URL %]" class="filename">[% file.name ENC XML %]</a></div>
-<div class="relative"><a href="upfile:[% file.path ENC XML %]" class="label">(relative)</a></div>
+<div class="name">
+[% IF uploadpub \%]
+<a href="[% uploadpub ENC XML %]/[% file.path ENC URL %]" class="filename">[% file.name ENC XML %]</a>
+[% ELSE \%]
+<a href="[% scriptname %]/[% file.path ENC URL %]" class="filename">[% file.name ENC XML %]</a>
+[% END \%]
+</div>
+<div class="relative">
+<a href="upfile:[% file.path ENC URL %]" class="label">(relative)</a>
+</div>
 [% IF file.thumnail \%]
-<div class="thumnail"><img src="[% scriptname %]/[% file.path ENC URL %]" width="100" alt="thumnail" /></div>
+<div class="thumnail">
+[% IF uploadpub \%]
+<img src="[% uploadpub ENC XML %]/[% file.path ENC URL %]" width="100" alt="" />
+[% ELSE \%]
+<img src="[% scriptname %]/[% file.path ENC URL %]" width="100" alt="" />
+[% END \%]
+</div>
 [% END \%]
 </td>
-<td class="misc">
+<td class="misc stat">
 <div class="date">[% file.date ENC XML %]</div>
 <div class="type">[% file.typename ENC XML %]</div>
 <div class="size">[% file.size ENC XML %] bytes</div>
 </td>
-<td class="misc">
+<td class="misc replace">
 <form method="post" action="[% scriptname %]" enctype="multipart/form-data" class="filereplform">
 <div>
 <input type="file" name="fmfile" size="1" class="fileinput" />
+</div>
+<div>
 <input type="submit" value="replace" class="submit" />
 <input type="hidden" name="act" value="files" />
 <input type="hidden" name="fmmode" value="repl" />
@@ -572,13 +908,16 @@ thumnail:<input type="checkbox" name="fmthum" value="on"[% IF params.fmthum EQ "
 [% IF params.fmthum EQ "on" \%]
 <input type="hidden" name="fmthum" value="on" />
 [% END \%]
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 </td>
-<td class="misc">
+<td class="misc delete">
 <form method="post" action="[% scriptname %]" class="filedelform">
 <div>
 confirm:<input type="checkbox" name="confirm" value="on" />
+</div>
+<div>
 <input type="submit" value="delete" class="submit" />
 <input type="hidden" name="act" value="files" />
 <input type="hidden" name="fmmode" value="del" />
@@ -587,6 +926,7 @@ confirm:<input type="checkbox" name="confirm" value="on" />
 [% IF params.fmthum EQ "on" \%]
 <input type="hidden" name="fmthum" value="on" />
 [% END \%]
+<input type="hidden" name="seskey" value="[% seskey ENC XML %]" />
 </div>
 </form>
 </td>
@@ -600,18 +940,98 @@ confirm:<input type="checkbox" name="confirm" value="on" />
 [%--------------------------------
   - footer
   --------------------------------\%]
-<hr />
 [% IF page \%]
 <div id="botnavi">
 [% IF prev \%]
-<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]">Prev</a>
+<a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]" title="move to the previous page">Prev</a>
 [% END \%]
 [% IF next \%]
-<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]">Next</a>
+<a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]" title="move to the next page">Next</a>
 [% END \%]
 </div>
 [% END \%]
-<div id="footer">Powered by <a href="http://tokyocabinet.sourceforge.net/promenadedoc/">Tokyo Promenade</a> [% tpversion ENC XML %].</div>
+</div>
+[% IF sidebar \%]
+<div id="sidebar">
+[% IF username \%]
+<p>Welcome, <span class="user">[% username ENC XML %]</span></p>
+[% END \%]
+<h2>last update</h2>
+<ul>
+<li>[% mtimesimple ENC XML %]</li>
+</ul>
+<h2>menu</h2>
+<ul>
+[% IF homepage PRT \%]
+<li><a href="[% homepage ENC XML %]" title="move to the home page">Home</a></li>
+[% END \%]
+<li><a href="[% scriptname %]" title="move to the top page">Top</a></li>
+[% IF aboutpage PRT \%]
+<li><a href="[% scriptname %]?name=[% aboutpage ENC URL %]&amp;adjust=front" title="move to the page about this site">About</a></li>
+[% END \%]
+[% IF helppage PRT \%]
+<li><a href="[% scriptname %]?name=[% helppage ENC URL %]&amp;adjust=front" title="move to the help page">Help</a></li>
+[% END \%]
+[% IF basicauth NOT \%]
+[% IF username \%]
+<li><a href="[% scriptname %]?act=logout[% IF params.id %]&amp;id=[% params.id ENC XML %][% END %][% IF params.name %]&amp;name=[% params.name ENC XML %][% END %]" title="logout from this account">Logout</a></li>
+[% ELSE \%]
+<li><a href="[% scriptname %]?act=login[% IF params.id %]&amp;id=[% params.id ENC XML %][% END %][% IF params.name %]&amp;name=[% params.name ENC XML %][% END %]" title="login as a registerd user">Login</a></li>
+[% END \%]
+[% END \%]
+[% IF users \%]
+[% IF admin \%]
+<li><a href="[% scriptname %]?act=users" title="manage the registered users">Users</a></li>
+[% END \%]
+[% END \%]
+[% IF auth \%]
+[% IF upload PRT \%]
+<li><a href="[% scriptname %]?act=files" title="manage the upload files">Files</a></li>
+[% END \%]
+[% IF view EQ "front" \%]
+[% IF art.frozen NOT \%]
+<li><a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]" title="edit this article">Edit</a></li>
+[% END \%]
+[% END \%]
+[% IF view EQ "single" \%]
+[% IF art.frozen NOT \%]
+<li><a href="[% scriptname %]?act=edit&amp;id=[% art.id ENC XML %]" title="edit this article">Edit</a></li>
+[% END \%]
+[% ELSE \%]
+<li><a href="[% scriptname %]?act=edit" title="post a new article">Post</a></li>
+[% END \%]
+[% END \%]
+[% IF frontpage PRT \%]
+<li><a href="[% scriptname %]?act=timeline" title="show articles in the timeline">Timeline</a></li>
+[% END \%]
+<li><a href="[% scriptname %]?act=search" title="search for articles">Search</a></li>
+[% IF prev \%]
+<li><a href="[% scriptname %]?page=[% prev ENC XML %][% comquery ENC XML %]" title="move to the previous page">Prev</a></li>
+[% END \%]
+[% IF next \%]
+<li><a href="[% scriptname %]?page=[% next ENC XML %][% comquery ENC XML %]" title="move to the next page">Next</a></li>
+[% END \%]
+<li><a href="[% scriptname %]?format=atom&amp;act=timeline&amp;order=cdate" title="Atom feed by creation date">Feed</a></li>
+</ul>
+[% IF sidearts \%]
+<h2>recent articles</h2>
+<ul>
+[% FOREACH sidearts art \%]
+<li><a href="[% scripturl %]?id=[% art.id ENC XML %]">[% art.name ENC XML %]</a></li>
+[% END \%]
+</ul>
+[% END \%]
+[% IF sidecoms \%]
+<h2>recent comments</h2>
+<ul>
+[% FOREACH sidecoms com \%]
+<li><a href="[% scripturl %]?id=[% com.id ENC XML %]#article[% com.id ENC XML %]_comments">[% com.owner ENC XML %]</a></li>
+[% END \%]
+</ul>
+[% END \%]
+</div>
+[% END \%]
 </div>
 </body>
 </html>
+[% END \%]
